@@ -26,8 +26,13 @@ public class Main {
 
         MCNP_Cell myCell = new MCNP_Cell("My Cell", uranium);
 
+        Vector<Vector<Double>> vectorTest = new Vector<Vector<Double>>();
+        Vector<Double> doubleVector = new Vector<Double>();
 
-        System.out.print(test1);
-        System.out.print(uranium);
+        vectorTest.add(doubleVector);
+
+        doubleVector.add(5.0);
+
+        System.out.println(vectorTest.get(0).get(0));
     }
 }

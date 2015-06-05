@@ -10,13 +10,7 @@ public class MCNP_Cell extends MCNP_Object {
     private String name;
     private Integer id;
     private MCNP_Material material;
-    private Vector<Vector<MCNP_Surface>> surfaceGroups;
-    private Vector<Vector<Orientation>> orientationGroups;
-
-    public enum Orientation{
-        NEGATIVE,
-        POSITIVE
-    }
+    private Vector<MCNP_SurfaceGroup> surfaceGroups;
 
     public MCNP_Cell(String name, MCNP_Material material){
         this.totalCells++;
@@ -24,6 +18,9 @@ public class MCNP_Cell extends MCNP_Object {
         this.name = name;
         this.id = totalCells;
         this.material = material;
+
+        this.surfaceGroups = new Vector<MCNP_SurfaceGroup>();
+        this.surfaceGroups.add(new MCNP_SurfaceGroup());
     }
 
     public MCNP_Cell(MCNP_Material material){
@@ -38,9 +35,12 @@ public class MCNP_Cell extends MCNP_Object {
         this("Unnamed Cell", null);
     }
 
-    public void addSurfaceGroup(Vector<MCNP_Surface> surfaceGroup, Vector<Orientation> orientationGroup){
-        this.surfaceGroups.add(surfaceGroup);
-        this.orientationGroups.add(orientationGroup);
+    public void addSurface(MCNP_Surface surface, MCNP_SurfaceGroup.Orientation orientation){
+        this.surfaceGroups.lastElement().addSurface(surface, orientation);
+    }
+
+    public void startNewSurfaceGroup(){
+        this.surfaceGroups.add(new MCNP_SurfaceGroup());
     }
 
     public String toString(){
@@ -55,30 +55,14 @@ public class MCNP_Cell extends MCNP_Object {
             currentLine += String.format("%+.4e ", this.material.getDensity());
         }
 
-        for(int i = 0; i < surfaceGroups.size(); i++){
+        for(MCNP_SurfaceGroup surfaceGroup : this.surfaceGroups){
 
-            String s = "(";
-            for(int j = 0; j < surfaceGroups.get(i).size(); j++){
-
-                if(orientationGroups.get(i).get(j) == Orientation.NEGATIVE){
-                    s += "-";
-                }
-
-                s += surfaceGroups.get(i).get(i).getID().toString();
-
-                if(j + 1 == surfaceGroups.get(i).size()){
-                    s += ")";
-                }else{
-                    s += " ";
-                }
-            }
-
-            if(currentLine.length() + s.length() > 78){
+            if(currentLine.length() + surfaceGroup.toString().length() > 78){
                 lines.add(MCNP_API_Utilities.formatCardEnd(currentLine));
                 currentLine = "    ";
             }
 
-            currentLine += s;
+            currentLine += surfaceGroup.toString();
         }
 
         lines.add(MCNP_API_Utilities.formatCardEnd(currentLine, this.name));
@@ -90,6 +74,5 @@ public class MCNP_Cell extends MCNP_Object {
 
         return finalString;
     }
-
 
 }
