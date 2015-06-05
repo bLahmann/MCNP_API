@@ -37,6 +37,10 @@ public class MCNP_Surface extends MCNP_Object {
         this.parameters.add(parameter);
     }
 
+    protected Integer getID(){
+        return this.id;
+    }
+
     public String toString(){
         Vector<String> lines = new Vector<String>();
         String currentLine = new String();
@@ -47,7 +51,7 @@ public class MCNP_Surface extends MCNP_Object {
             String s = String.format("%+.4e ", parameter);
 
             if(currentLine.length() + s.length() > 78){
-                lines.add(MCNP_API_Utilities.formatCardEnd(currentLine, this.name));
+                lines.add(MCNP_API_Utilities.formatCardEnd(currentLine));
                 currentLine = "    ";
             }
 
