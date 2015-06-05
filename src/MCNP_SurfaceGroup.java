@@ -5,11 +5,6 @@ import java.util.Vector;
  */
 public class MCNP_SurfaceGroup extends MCNP_Object{
 
-    public enum Orientation{
-        NEGATIVE,
-        POSITIVE
-    }
-
     Vector<Pair> surfaceGroup;
 
     public MCNP_SurfaceGroup(){

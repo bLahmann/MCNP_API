@@ -1,6 +1,7 @@
 /**
  * Created by lahmann on 06/04/2015.
  * TODO: Implement a way for the user to pick from a list of cross section libraries
+ * TODO: Consider a enum solution
  */
 public class MCNP_Isotope extends MCNP_Object{
 

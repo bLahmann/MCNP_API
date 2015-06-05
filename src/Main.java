@@ -25,12 +25,13 @@ public class Main {
         uranium.addIsotope(uranium238, -(100-.711));
 
         MCNP_Cell myCell = new MCNP_Cell("My Cell", uranium);
-        myCell.addSurface(mySurface, MCNP_SurfaceGroup.Orientation.NEGATIVE);
-        myCell.addSurface(mySurface, MCNP_SurfaceGroup.Orientation.NEGATIVE);
-        myCell.addSurface(mySurface, MCNP_SurfaceGroup.Orientation.NEGATIVE);
-        myCell.addSurface(mySurface, MCNP_SurfaceGroup.Orientation.NEGATIVE);
+        myCell.addSurface(mySurface, Orientation.NEGATIVE);
+        myCell.addSurface(mySurface, Orientation.NEGATIVE);
+        myCell.addSurface(mySurface, Orientation.NEGATIVE);
+        myCell.addSurface(mySurface, Orientation.NEGATIVE);
 
         System.out.print(mySurface);
         System.out.print(myCell);
+
     }
 }

@@ -5,7 +5,12 @@ import java.util.Vector;
  */
 public class MCNP_Deck extends MCNP_Object {
 
+    String name;
+
     Vector<MCNP_Cell> cells;
     Vector<MCNP_Surface> surfaces;
+    Vector<MCNP_Particle> particlesSimulated;
+
+
 
 }

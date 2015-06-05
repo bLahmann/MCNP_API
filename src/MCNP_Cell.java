@@ -35,7 +35,7 @@ public class MCNP_Cell extends MCNP_Object {
         this("Unnamed Cell", null);
     }
 
-    public void addSurface(MCNP_Surface surface, MCNP_SurfaceGroup.Orientation orientation){
+    public void addSurface(MCNP_Surface surface, Orientation orientation){
         this.surfaceGroups.lastElement().addSurface(surface, orientation);
     }
 
