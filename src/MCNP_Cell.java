@@ -63,6 +63,10 @@ public class MCNP_Cell extends MCNP_Object {
             }
 
             currentLine += surfaceGroup.toString();
+
+            if(!surfaceGroup.equals(surfaceGroups.lastElement())){
+                currentLine += ":";
+            }
         }
 
         lines.add(MCNP_API_Utilities.formatCardEnd(currentLine, this.name));

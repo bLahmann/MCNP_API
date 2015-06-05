@@ -16,7 +16,7 @@ public class Main {
         temp.add(0.0);
         temp.add(0.0);
 
-        MCNP_Surface test1 = new MCNP_Surface("so", temp);
+        MCNP_Surface mySurface = new MCNP_Surface("so", temp);
         MCNP_Isotope uranium235 = new MCNP_Isotope("U-235", 92, 235, "70c");
         MCNP_Isotope uranium238 = new MCNP_Isotope("U-238", 92, 238, "70c");
 
@@ -25,14 +25,12 @@ public class Main {
         uranium.addIsotope(uranium238, -(100-.711));
 
         MCNP_Cell myCell = new MCNP_Cell("My Cell", uranium);
+        myCell.addSurface(mySurface, MCNP_SurfaceGroup.Orientation.NEGATIVE);
+        myCell.addSurface(mySurface, MCNP_SurfaceGroup.Orientation.NEGATIVE);
+        myCell.addSurface(mySurface, MCNP_SurfaceGroup.Orientation.NEGATIVE);
+        myCell.addSurface(mySurface, MCNP_SurfaceGroup.Orientation.NEGATIVE);
 
-        Vector<Vector<Double>> vectorTest = new Vector<Vector<Double>>();
-        Vector<Double> doubleVector = new Vector<Double>();
-
-        vectorTest.add(doubleVector);
-
-        doubleVector.add(5.0);
-
-        System.out.println(vectorTest.get(0).get(0));
+        System.out.print(mySurface);
+        System.out.print(myCell);
     }
 }

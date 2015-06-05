@@ -6,16 +6,16 @@ public class Pair {
     private Object firstObject;
     private Object secondObject;
 
-    protected Pair(Object firstObject, Object secondObject){
+    public Pair(Object firstObject, Object secondObject){
         this.firstObject = firstObject;
         this.secondObject = secondObject;
     }
 
-    protected Object first(){
+    public Object first(){
         return this.firstObject;
     }
 
-    protected Object second(){
+    public Object second(){
         return this.secondObject;
     }
 }
