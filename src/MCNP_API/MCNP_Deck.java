@@ -1,3 +1,5 @@
+package MCNP_API;
+
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -9,6 +11,7 @@ public class MCNP_Deck extends MCNP_Object {
     private String name;
 
     private Vector<MCNP_Cell> cells;
+    private Vector<MCNP_Tally> tallies;
     private Vector<MCNP_Particle> particlesToSimulate;
     private Vector<Pair> parameters;
     private Integer numberOfParticles = 0;
@@ -18,14 +21,17 @@ public class MCNP_Deck extends MCNP_Object {
         this.name = name;
 
         cells = new Vector<MCNP_Cell>();
+        tallies = new Vector<MCNP_Tally>();
         particlesToSimulate = new Vector<MCNP_Particle>();
         parameters = new Vector<Pair>();
-
-        this.addParameter("Parameter", "Value");
     }
 
     public void addCell(MCNP_Cell cell){
         cells.add(cell);
+    }
+
+    public void addTally(MCNP_Tally tally){
+        tallies.add(tally);
     }
 
     public void addParticleToSimulate(MCNP_Particle particleToSimulate){
@@ -33,6 +39,10 @@ public class MCNP_Deck extends MCNP_Object {
     }
 
     public void addParameter(String name, Object parameter){
+        if(parameters.isEmpty()){
+            this.addParameter("Parameter", "Value");
+        }
+
         parameters.add(new Pair(name, parameter));
     }
 
@@ -130,6 +140,10 @@ public class MCNP_Deck extends MCNP_Object {
         }
 
         lines.add(source.toString());
+
+        for(MCNP_Tally tally : tallies){
+            lines.add(tally.toString());
+        }
 
 
         String finalString = new String();

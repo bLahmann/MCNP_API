@@ -1,9 +1,11 @@
-import java.lang.reflect.Field;
+import MCNP_API.*;
+
 import java.util.Vector;
 
 public class Main {
 
     public static void main(String[] args) {
+
 
         Vector<Double> temp = new Vector<Double>();
         temp.add(-1.0);
@@ -54,9 +56,20 @@ public class Main {
         myDeck.addParticleToSimulate(neutron);
         myDeck.setSource(mySource);
 
+        MCNP_Tally myTally = new MCNP_Tally("Surface Tally", MCNP_Tally.TallyType.SURFACE_AVERAGED_FLUX, neutron);
+        myTally.setEnergyBins(temp);
+        myTally.setTimeBins(temp);
+        myTally.addTallyLocation(mySurface);
 
+        MCNP_Tally secondTally = new MCNP_Tally("Cell Tally", MCNP_Tally.TallyType.CELL_AVERAGED_DOSE, neutron);
+        secondTally.setEnergyBins(temp);
+        secondTally.setTimeBins(temp);
+        secondTally.addTallyLocation(myCell);
 
-        System.out.print(myDeck);
+        myDeck.addTally(myTally);
+        myDeck.addTally(secondTally);
+
+        System.out.println(myDeck);
 
     }
 }

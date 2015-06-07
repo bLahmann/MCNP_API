@@ -1,10 +1,12 @@
+package MCNP_API;
+
 import java.util.Iterator;
 import java.util.Vector;
 
 /**
  * Created by Brandon Lahmann on 6/6/2015.
  */
-public class MCNP_Distribution {
+public class MCNP_Distribution extends MCNP_Object {
 
     private static Integer totalDistributions = 0;
 

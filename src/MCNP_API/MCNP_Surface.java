@@ -1,8 +1,11 @@
+package MCNP_API;
+
 import java.util.Iterator;
 import java.util.Vector;
 
 /**
  * Created by Brandon Lahmann on 5/31/2015.
+ * TODO: Add classes that extend surfaces (Planes, Spheres, etc)
  */
 public class MCNP_Surface extends MCNP_Object {
 
@@ -70,5 +73,5 @@ public class MCNP_Surface extends MCNP_Object {
         }
 
         return finalString;
-    }
+}
 }

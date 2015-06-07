@@ -1,5 +1,9 @@
+package MCNP_API;
+
 /**
  * Created by Brandon Lahmann on 5/31/2015.
+ * TODO: A lot of the toString() methods use this copy and pasted bit to ensure lines don't exceed 80 characters. Consider a method here instead
+ * TODO: Combining the Vector<String> to a single String can be made into a method
  */
 public class MCNP_API_Utilities {
 

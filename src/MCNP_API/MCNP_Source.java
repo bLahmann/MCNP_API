@@ -1,3 +1,5 @@
+package MCNP_API;
+
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -5,7 +7,7 @@ import java.util.Vector;
  * Created by Brandon Lahmann on 6/6/2015.
  * TODO: Add the various options for MCNP sources (i.e position distributions, etc)
  */
-public class MCNP_Source {
+public class MCNP_Source extends MCNP_Object {
 
     private String name;
 

@@ -1,3 +1,5 @@
+package MCNP_API;
+
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -44,6 +46,10 @@ public class MCNP_Cell extends MCNP_Object {
 
     public void startNewSurfaceGroup(){
         this.surfaceGroups.add(new MCNP_SurfaceGroup());
+    }
+
+    protected Integer getID(){
+        return this.id;
     }
 
     protected Vector<MCNP_SurfaceGroup> getSurfaceGroups(){
