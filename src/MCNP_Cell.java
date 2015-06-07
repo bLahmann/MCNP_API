@@ -1,3 +1,4 @@
+import java.util.Iterator;
 import java.util.Vector;
 
 /**
@@ -5,34 +6,36 @@ import java.util.Vector;
  */
 public class MCNP_Cell extends MCNP_Object {
 
-    private Integer totalCells = 0;
+    private static Integer totalCells = 0;
 
     private String name;
     private Integer id;
     private MCNP_Material material;
     private Vector<MCNP_SurfaceGroup> surfaceGroups;
+    private Integer importance;
 
-    public MCNP_Cell(String name, MCNP_Material material){
+    public MCNP_Cell(String name, MCNP_Material material, Integer importance){
         this.totalCells++;
 
         this.name = name;
         this.id = totalCells;
         this.material = material;
+        this.importance = importance;
 
         this.surfaceGroups = new Vector<MCNP_SurfaceGroup>();
         this.surfaceGroups.add(new MCNP_SurfaceGroup());
     }
 
-    public MCNP_Cell(MCNP_Material material){
-        this("Unnamed Cell", material);
+    public MCNP_Cell(MCNP_Material material, Integer importance){
+        this("Unnamed Cell", material, importance);
     }
 
-    public MCNP_Cell(String name){
-        this(name, null);
+    public MCNP_Cell(String name, Integer importance){
+        this(name, null, importance);
     }
 
-    public MCNP_Cell(){
-        this("Unnamed Cell", null);
+    public MCNP_Cell(Integer importance){
+        this("Unnamed Cell", null, importance);
     }
 
     public void addSurface(MCNP_Surface surface, Orientation orientation){
@@ -41,6 +44,18 @@ public class MCNP_Cell extends MCNP_Object {
 
     public void startNewSurfaceGroup(){
         this.surfaceGroups.add(new MCNP_SurfaceGroup());
+    }
+
+    protected Vector<MCNP_SurfaceGroup> getSurfaceGroups(){
+        return this.surfaceGroups;
+    }
+
+    protected MCNP_Material getMaterial(){
+        return this.material;
+    }
+
+    protected Integer getImportance(){
+        return this.importance;
     }
 
     public String toString(){
@@ -72,8 +87,11 @@ public class MCNP_Cell extends MCNP_Object {
         lines.add(MCNP_API_Utilities.formatCardEnd(currentLine, this.name));
 
         String finalString = new String();
-        for(String line : lines){
-            finalString += line + '\n';
+        Iterator<String> iterator = lines.iterator();
+        while(iterator.hasNext()){
+            finalString += iterator.next();
+            if(iterator.hasNext())
+                finalString += "\n";
         }
 
         return finalString;

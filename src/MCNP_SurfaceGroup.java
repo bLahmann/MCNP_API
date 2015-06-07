@@ -5,7 +5,7 @@ import java.util.Vector;
  */
 public class MCNP_SurfaceGroup extends MCNP_Object{
 
-    Vector<Pair> surfaceGroup;
+    private Vector<Pair> surfaceGroup;
 
     public MCNP_SurfaceGroup(){
         this.surfaceGroup = new Vector<Pair>();
@@ -13,6 +13,16 @@ public class MCNP_SurfaceGroup extends MCNP_Object{
 
     public void addSurface(MCNP_Surface surface, Orientation orientation){
         this.surfaceGroup.add(new Pair(surface, orientation));
+    }
+
+    protected Vector<MCNP_Surface> getSurfaces(){
+        Vector<MCNP_Surface> surfaces = new Vector<MCNP_Surface>();
+
+        for(Pair pair : surfaceGroup){
+            surfaces.add((MCNP_Surface) pair.first());
+        }
+
+        return surfaces;
     }
 
     public String toString(){

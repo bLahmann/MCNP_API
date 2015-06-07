@@ -8,7 +8,9 @@ import java.util.Vector;
 public class MCNP_Particle extends MCNP_Object {
 
     public static MCNP_Particle neutron(){
-        return new MCNP_Particle("Neutron", "n", 0, 1);
+        MCNP_Particle neutron = new MCNP_Particle("Neutron", "n", 0, 1);
+        neutron.setPhysicsOptions(100.0, 0.0, false, -1, -1, 0, 0);
+        return neutron;
     }
 
     public static MCNP_Particle photon(){
@@ -68,12 +70,20 @@ public class MCNP_Particle extends MCNP_Object {
         card = "PHYS:" + this.id + " ";
 
         for(Object option : physicsOptions){
-            if(option.getClass() == D)
+            if(option.getClass() == Double.class || option.getClass() == double.class) {
+                card += String.format("%+.4e ", option);
+            }
+            else if(option.getClass() == Boolean.class || option.getClass() == boolean.class){
+                if((Boolean) option)
+                    card += "1 ";
+                else
+                    card += "0 ";
+            }
+            else {
+                card += option.toString() + " ";
+            }
         }
 
-
-
+        return MCNP_API_Utilities.formatCardEnd(card, this.name + " Physics Options");
     }
-
-
 }

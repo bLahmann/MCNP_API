@@ -1,3 +1,4 @@
+import java.util.Iterator;
 import java.util.Vector;
 
 /**
@@ -59,12 +60,15 @@ public class MCNP_Material extends MCNP_Object {
             s += isotopes.get(i).toString() + " ";
             s += String.format("%+.4e", fractions.get(i));
 
-            lines.add(MCNP_API_Utilities.formatCardEnd(s, isotopes.get(i).getName()));
+            lines.add(MCNP_API_Utilities.formatCardEnd(s, "  " + isotopes.get(i).getName()));
         }
 
         String finalString = new String();
-        for(String line : lines){
-            finalString += line + '\n';
+        Iterator<String> iterator = lines.iterator();
+        while(iterator.hasNext()){
+            finalString += iterator.next();
+            if(iterator.hasNext())
+                finalString += "\n";
         }
 
         return finalString;

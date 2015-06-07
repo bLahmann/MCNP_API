@@ -1,3 +1,4 @@
+import java.util.Iterator;
 import java.util.Vector;
 
 /**
@@ -22,7 +23,7 @@ public class MCNP_Surface extends MCNP_Object {
     }
 
     public MCNP_Surface(String type, Vector<Double> parameters){
-        this("Unnamed Surface", type, parameters);
+        this("Unnamed " + type + " Surface", type, parameters);
     }
 
     public MCNP_Surface(String name, String type){
@@ -30,7 +31,7 @@ public class MCNP_Surface extends MCNP_Object {
     }
 
     public MCNP_Surface(String type){
-        this("Unnamed Surface", type, new Vector<Double>());
+        this("Unnamed " + type + " Surface", type, new Vector<Double>());
     }
 
     public void addParameter(Double parameter){
@@ -61,12 +62,13 @@ public class MCNP_Surface extends MCNP_Object {
         lines.add(MCNP_API_Utilities.formatCardEnd(currentLine, this.name));
 
         String finalString = new String();
-        for(String line : lines){
-            finalString += line + '\n';
+        Iterator<String> iterator = lines.iterator();
+        while(iterator.hasNext()){
+            finalString += iterator.next();
+            if(iterator.hasNext())
+                finalString += "\n";
         }
 
         return finalString;
     }
-
-
 }
