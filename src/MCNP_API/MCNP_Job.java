@@ -9,6 +9,9 @@ import java.io.*;
  */
 public class MCNP_Job extends MCNP_Object {
 
+    private static final File runningDir = new File("runningDir");
+    private static final String tempName = "tempFile";
+
     private String name;
     private File inputFile, outputFile, runFile, logFile;
     private MCNP_Deck deck;
@@ -17,32 +20,37 @@ public class MCNP_Job extends MCNP_Object {
         this.name = name;
         this.deck = deck;
 
-        String baseFilename = name + "/" + name + "_" + System.currentTimeMillis();
+        String tempFilename = runningDir.getName() + "/tempFile";
 
-        inputFile = new File(baseFilename + ".input");
-        outputFile = new File(baseFilename + ".output");
-        runFile = new File(baseFilename + ".run");
-        logFile = new File(baseFilename + ".log");
+        inputFile = new File(tempFilename + ".input");
+        outputFile = new File(tempFilename + ".output");
+        runFile = new File(tempFilename + ".run");
+        logFile = new File(tempFilename + ".log");
     }
 
     public void runMPIJob(Integer nodes){
         try {
             String s;
 
+            runningDir.mkdir();
+
+            inputFile.createNewFile();
             FileWriter writer = new FileWriter(inputFile);
             writer.write(deck.toString());
             writer.close();
 
+            runFile.createNewFile();
             writer = new FileWriter(runFile);
 
             String command = "mpirun ";
             command += "-np " + nodes.toString() + " ";
             command += "mcnpxMpi ";
-            command += "i= " + inputFile.getName();
-            command += "o= " + outputFile.getName();
-            command += "run= " + runFile.getName();
+            command += "i= " + inputFile.getPath() + " ";
+            command += "o= " + outputFile.getPath() + " ";
+            command += "run= " + runFile.getPath() + " ";
 
             Process p = Runtime.getRuntime().exec(command);
+            writer.write(command + "\n");
 
             BufferedReader stdInput = new BufferedReader(new
                     InputStreamReader(p.getInputStream()));
@@ -57,6 +65,17 @@ public class MCNP_Job extends MCNP_Object {
             while ((s = stdError.readLine()) != null) {
                 writer.write(s);
             }
+
+            writer.close();
+
+            String finalFilename = name + "/" + name + "_" + System.currentTimeMillis();
+            new File(name).mkdir();
+
+            inputFile.renameTo(new File(finalFilename + ".input"));
+            outputFile.renameTo(new File(finalFilename + ".output"));
+            runFile.renameTo(new File(finalFilename + ".run"));
+            logFile.renameTo(new File(finalFilename + ".log"));
+
         }
         catch(IOException e){
             e.printStackTrace();

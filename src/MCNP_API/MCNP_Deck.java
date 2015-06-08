@@ -40,7 +40,7 @@ public class MCNP_Deck extends MCNP_Object {
 
     public void addParameter(String name, Object parameter){
         if(parameters.isEmpty()){
-            this.addParameter("Parameter", "Value");
+            parameters.add(new Pair("Parameter", "Value"));
         }
 
         parameters.add(new Pair(name, parameter));
@@ -89,7 +89,7 @@ public class MCNP_Deck extends MCNP_Object {
                 }
             }
 
-            if(!uniqueMaterials.contains(cell.getMaterial())){
+            if(cell.getMaterial() != null && !uniqueMaterials.contains(cell.getMaterial())){
                 uniqueMaterials.add(cell.getMaterial());
             }
         }
