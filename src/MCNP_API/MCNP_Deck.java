@@ -114,7 +114,7 @@ public class MCNP_Deck extends MCNP_Object {
 
         String modeCard = new String("MODE ");
         for(MCNP_Particle particle : particlesToSimulate){
-            modeCard += particle.getId();
+            modeCard += particle.getId() + " ";
         }
         lines.add(modeCard);
         lines.add("NPS  " + String.format("%.4e", Math.floor(numberOfParticles)));
