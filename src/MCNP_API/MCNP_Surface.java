@@ -9,7 +9,7 @@ import java.util.Vector;
  */
 public class MCNP_Surface extends MCNP_Object {
 
-    private static Integer totalSurfaces = 0;
+    public static Integer totalSurfaces = 0;
 
     private String name;
     private String type;

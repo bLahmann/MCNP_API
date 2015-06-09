@@ -8,7 +8,7 @@ import java.util.Vector;
  */
 public class MCNP_Cell extends MCNP_Object {
 
-    private static Integer totalCells = 0;
+    public static Integer totalCells = 0;
 
     private String name;
     private Integer id;

@@ -7,10 +7,11 @@ import java.util.Vector;
  * Created by Brandon Lahmann on 6/7/2015.
  * TODO: Add an exception for invalid particle type combos
  * TODO: Tallies should really only accept cells and surfaces, not all objects
+ * TODO: Add a method for specifying linear and log ranges for bins
  */
 public class MCNP_Tally extends MCNP_Object {
 
-    private static Integer totalTallies = 0;
+    public static Integer totalTallies = 0;
 
     public enum TallyType{
         SURFACE_INTEGRATED_CURRENT,     // 1
@@ -57,6 +58,14 @@ public class MCNP_Tally extends MCNP_Object {
 
     public void addTallyLocation(MCNP_Object tallyLocation){
         this.tallyLocations.add(tallyLocation);
+    }
+
+    public void addEnergyBin(Double energyBin){
+        this.energyBins.add(energyBin);
+    }
+
+    public void addTimeBin(Double timeBin){
+        this.timeBins.add(timeBin);
     }
 
     public void setEnergyBins(Vector<Double> energyBins){

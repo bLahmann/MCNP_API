@@ -8,7 +8,7 @@ import java.util.Vector;
  */
 public class MCNP_Material extends MCNP_Object {
 
-    private static Integer totalMaterials = 0;
+    public static Integer totalMaterials = 0;
 
     private String name;
     private Integer id;

@@ -8,7 +8,7 @@ import java.util.Vector;
  */
 public class MCNP_Distribution extends MCNP_Object {
 
-    private static Integer totalDistributions = 0;
+    public static Integer totalDistributions = 0;
 
     public enum NodeOption{
         HISTOGRAM_BOUNDS,       // H

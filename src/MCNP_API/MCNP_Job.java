@@ -6,6 +6,7 @@ import java.io.*;
 /**
  * Created by Brandon Lahmann on 6/7/2015.
  * TODO: Generalize this to work with different versions of MCNP
+ * TODO: Remove hard coding specific to our number cruncher. Force the user to point at MCNP executable (Static field?)
  */
 public class MCNP_Job extends MCNP_Object {
 
@@ -39,8 +40,8 @@ public class MCNP_Job extends MCNP_Object {
             writer.write(deck.toString());
             writer.close();
 
-            runFile.createNewFile();
-            writer = new FileWriter(runFile);
+            logFile.createNewFile();
+            writer = new FileWriter(logFile);
 
             String command = "mpirun ";
             command += "-np " + nodes.toString() + " ";
@@ -59,11 +60,11 @@ public class MCNP_Job extends MCNP_Object {
                     InputStreamReader(p.getErrorStream()));
 
             while ((s = stdInput.readLine()) != null) {
-                writer.write(s);
+                writer.write(s + '\n');
             }
 
             while ((s = stdError.readLine()) != null) {
-                writer.write(s);
+                writer.write(s + '\n');
             }
 
             writer.close();

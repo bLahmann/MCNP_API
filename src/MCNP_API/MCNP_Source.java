@@ -22,10 +22,6 @@ public class MCNP_Source extends MCNP_Object {
         this.name = name;
         this.particle = particle;
 
-        energyDistribution = new MCNP_Distribution(this.name + " Energy Distribution");
-        timeDistribution = new MCNP_Distribution(this.name + " Time Distribution");
-        directionalDistribution = new MCNP_Distribution(this.name + " Directional Distribution");
-
         referenceVector = new Double[] {0.0, 0.0, 1.0};
     }
 
@@ -54,13 +50,13 @@ public class MCNP_Source extends MCNP_Object {
 
         mainLine += "PAR=" + particle.getId() + " ";
 
-        if(!energyDistribution.isEmpty())
+        if(energyDistribution != null && !energyDistribution.isEmpty())
             mainLine += "ERG=D" + energyDistribution.getID().toString() + " ";
 
-        if(!timeDistribution.isEmpty())
+        if(timeDistribution != null && !timeDistribution.isEmpty())
             mainLine += "TME=D" + timeDistribution.getID().toString() + " ";
 
-        if(!directionalDistribution.isEmpty())
+        if(directionalDistribution != null && !directionalDistribution.isEmpty())
             mainLine += "DIR=D" + directionalDistribution.getID().toString() + " ";
 
         mainLine += "VEC=" + referenceVector[0] +
@@ -69,13 +65,13 @@ public class MCNP_Source extends MCNP_Object {
 
         lines.add(MCNP_API_Utilities.formatCardEnd(mainLine, this.name));
 
-        if(!energyDistribution.isEmpty())
+        if(energyDistribution != null && !energyDistribution.isEmpty())
             lines.add(energyDistribution.toString());
 
-        if(!timeDistribution.isEmpty())
+        if(timeDistribution != null && !timeDistribution.isEmpty())
             lines.add(timeDistribution.toString());
 
-        if(!directionalDistribution.isEmpty())
+        if(directionalDistribution != null && !directionalDistribution.isEmpty())
             lines.add(directionalDistribution.toString());
 
         String finalString = new String();

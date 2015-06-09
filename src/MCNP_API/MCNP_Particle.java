@@ -16,7 +16,9 @@ public class MCNP_Particle extends MCNP_Object {
     }
 
     public static MCNP_Particle photon(){
-        return new MCNP_Particle("Photon", "p", 0, 0);
+        MCNP_Particle photon = new MCNP_Particle("Photon", "p", 0, 0);
+        photon.setPhysicsOptions(100.0, 0, 0, 0, 1, 0, 0);
+        return photon;
     }
 
     public static MCNP_Particle electron(){

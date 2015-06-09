@@ -46,8 +46,9 @@ public class MCNP_Deck extends MCNP_Object {
         parameters.add(new Pair(name, parameter));
     }
 
-    public void setSource(MCNP_Source source){
+    public void setSource(MCNP_Source source, Integer numberOfParticles){
         this.source = source;
+        this.numberOfParticles = numberOfParticles;
     }
 
     public String toString(){
