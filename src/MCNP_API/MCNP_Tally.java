@@ -26,6 +26,7 @@ public class MCNP_Tally extends MCNP_Object {
     private Integer id;
     private MCNP_Particle particle;
     private TallyType tallyType;
+    private Double multiplier = 1.0;
 
     private Vector<MCNP_Object> tallyLocations;
     private Vector<Double> energyBins;
@@ -54,6 +55,10 @@ public class MCNP_Tally extends MCNP_Object {
 
     public MCNP_Tally(TallyType tallyType){
         this("Unnamed Tally", tallyType, null);
+    }
+
+    public void setMultiplier(Double multiplier) {
+        this.multiplier = multiplier;
     }
 
     public void addTallyLocation(MCNP_Object tallyLocation){
@@ -132,6 +137,9 @@ public class MCNP_Tally extends MCNP_Object {
             currentLine += s;
         }
         lines.add(MCNP_API_Utilities.formatCardEnd(currentLine, this.name));
+
+        // Multiplier line
+        lines.add("FM" + tallyId.toString() + " " + String.format("%+.4e ", multiplier));
 
         if(!energyBins.isEmpty()){
             currentLine = "E" + tallyId + " ";

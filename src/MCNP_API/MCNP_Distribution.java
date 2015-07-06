@@ -1,6 +1,9 @@
 package MCNP_API;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
+import java.util.Scanner;
 import java.util.Vector;
 
 /**
@@ -35,6 +38,36 @@ public class MCNP_Distribution extends MCNP_Object {
         nodes = new Vector<Double>();
         probabilities = new Vector<Double>();
         biases = new Vector<Double>();
+    }
+
+    public MCNP_Distribution(String name, String filename, NodeOption nodeOption){
+        this(name);
+        this.nodeOption = nodeOption;
+
+        try {
+            Scanner s = new Scanner(new File(filename));
+            while (s.hasNextLine()){
+                String line = s.nextLine();
+                String[] values = line.split("\\s+");
+
+                if(values.length > 0){
+                    nodes.add(Double.parseDouble(values[0]));
+                }
+                if(values.length > 1){
+                    probabilities.add(Double.parseDouble(values[1]));
+                }
+                if(values.length > 2) {
+                    biases.add(Double.parseDouble(values[2]));
+                }
+            }
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public MCNP_Distribution(String name, String filename){
+        this(name, filename, NodeOption.HISTOGRAM_BOUNDS);
     }
 
     public MCNP_Distribution(){

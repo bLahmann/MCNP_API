@@ -22,11 +22,15 @@ public class MCNP_Particle extends MCNP_Object {
     }
 
     public static MCNP_Particle electron(){
-        return new MCNP_Particle("Electron", "e", -1, 0);
+        MCNP_Particle electron = new MCNP_Particle("Electron", "e", -1, 0);
+        electron.setPhysicsOptions(100.0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0.917);
+        return electron;
     }
 
     public static MCNP_Particle proton(){
-        return new MCNP_Particle("Proton", "H", 1, 1);
+        MCNP_Particle proton = new MCNP_Particle("Proton", "H", 1, 1);
+        proton.setPhysicsOptions(100.0, 0.0, -1, "J", 0, "J", 0, "J J J", 0.917);
+        return proton;
     }
 
     private String name;

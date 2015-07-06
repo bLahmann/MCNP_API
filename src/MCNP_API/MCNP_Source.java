@@ -12,6 +12,7 @@ public class MCNP_Source extends MCNP_Object {
     private String name;
 
     private MCNP_Particle particle;
+
     private MCNP_Distribution energyDistribution;
     private MCNP_Distribution timeDistribution;
     private MCNP_Distribution directionalDistribution;
