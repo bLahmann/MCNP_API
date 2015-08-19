@@ -18,6 +18,16 @@ public class MCNP_Deck extends MCNP_Object {
     private MCNP_Source source;
 
     public MCNP_Deck(String name){
+        /**
+         * TODO: This is a horrible way to handle this problem, decks should have their own private counters that they use when writing the strings.
+         * TODO: The uuid should not be a component of the MCNP_Objects because it is not fundamentally a component of the object since it's only relevant to the deck
+         */
+        MCNP_Material.totalMaterials = 0;
+        MCNP_Distribution.totalDistributions = 0;
+        MCNP_Surface.totalSurfaces = 0;
+        MCNP_Tally.totalTallies = 0;
+        MCNP_Cell.totalCells = 0;
+
         this.name = name;
 
         cells = new Vector<MCNP_Cell>();
@@ -122,13 +132,15 @@ public class MCNP_Deck extends MCNP_Object {
 
         for(MCNP_Particle particle : particlesToSimulate){
             lines.add(particle.getPhysicsCard());
+            lines.add(particle.getCutoffCard());
 
             String importanceCard = "imp:" + particle.getId() + " ";
             for(MCNP_Cell cell : cells){
                 String s = cell.getImportance().toString() + " ";
 
                 if(importanceCard.length() + s.length() > 78) {
-                    importanceCard += "\n        ";
+                    lines.add(importanceCard);
+                    importanceCard = "        ";
                 }
                 importanceCard += s;
             }

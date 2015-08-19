@@ -11,10 +11,9 @@ import java.io.*;
 public class MCNP_Job extends MCNP_Object {
 
     private static final File runningDir = new File("runningDir");
-    private static final String tempName = "tempFile";
 
     private String name;
-    private File inputFile, outputFile, runFile, logFile;
+    public File inputFile, outputFile, runFile, logFile;
     private MCNP_Deck deck;
 
     public MCNP_Job(String name, MCNP_Deck deck){
@@ -29,58 +28,71 @@ public class MCNP_Job extends MCNP_Object {
         logFile = new File(tempFilename + ".log");
     }
 
-    public void runMPIJob(Integer nodes){
-        try {
-            String s;
+    public void runMPIJob(Integer nodes) throws Exception{
+        String command = new String();
 
-            runningDir.mkdir();
-
-            inputFile.createNewFile();
-            FileWriter writer = new FileWriter(inputFile);
-            writer.write(deck.toString());
-            writer.close();
-
-            logFile.createNewFile();
-            writer = new FileWriter(logFile);
-
-            String command = "mpirun ";
-            command += "-np " + nodes.toString() + " ";
-            command += "mcnpxMpi ";
-            command += "i= " + inputFile.getPath() + " ";
-            command += "o= " + outputFile.getPath() + " ";
-            command += "run= " + runFile.getPath() + " ";
-
-            Process p = Runtime.getRuntime().exec(command);
-            writer.write(command + "\n");
-
-            BufferedReader stdInput = new BufferedReader(new
-                    InputStreamReader(p.getInputStream()));
-
-            BufferedReader stdError = new BufferedReader(new
-                    InputStreamReader(p.getErrorStream()));
-
-            while ((s = stdInput.readLine()) != null) {
-                writer.write(s + '\n');
-            }
-
-            while ((s = stdError.readLine()) != null) {
-                writer.write(s + '\n');
-            }
-
-            writer.close();
-
-            String finalFilename = name + "/" + name + "_" + System.currentTimeMillis();
-            new File(name).mkdir();
-
-            inputFile.renameTo(new File(finalFilename + ".input"));
-            outputFile.renameTo(new File(finalFilename + ".output"));
-            runFile.renameTo(new File(finalFilename + ".run"));
-            logFile.renameTo(new File(finalFilename + ".log"));
-
+        if(System.getProperty("os.name").toLowerCase().contains("windows")){
+            command += "mpiexec -np ";
+        }else{
+            command += "mpirun  -np ";
         }
-        catch(IOException e){
-            e.printStackTrace();
-            return;
+
+        command += nodes.toString();
+        command += " mcnpxMpi";
+
+        runJob(command);
+    }
+
+    private void runJob(String command) throws Exception{
+
+        runningDir.mkdir();
+
+        inputFile.createNewFile();
+        FileWriter writer = new FileWriter(inputFile);
+        writer.write(deck.toString());
+        writer.close();
+
+        logFile.createNewFile();
+        writer = new FileWriter(logFile);
+
+        command += " ";
+        command += "i= " + inputFile.getPath() + " ";
+        command += "o= " + outputFile.getPath() + " ";
+        command += "run= " + runFile.getPath() + " ";
+
+        Process p = Runtime.getRuntime().exec(command);
+        writer.write(command + "\n");
+
+        BufferedReader stdInput = new BufferedReader(new
+                InputStreamReader(p.getInputStream()));
+
+        String s;
+        do{
+            s = stdInput.readLine();
+            writer.write(s);
+        }while(!s.contains("mcrun  is done"));
+
+        writer.close();
+
+        String finalFilename = name + "/" + name + "_" + System.currentTimeMillis();
+        new File(name).mkdir();
+
+        File tempFile = new File(finalFilename + ".input");
+        while(!inputFile.renameTo(tempFile)){
         }
+        inputFile = tempFile;
+
+        tempFile = new File(finalFilename + ".output");
+        while(!outputFile.renameTo(tempFile)){
+        }
+        outputFile = tempFile;
+
+        while(!runFile.delete()){
+        }
+
+        tempFile = new File(finalFilename + ".log");
+        while(!logFile.renameTo(new File(finalFilename + ".log"))){
+        }
+        logFile = tempFile;
     }
 }

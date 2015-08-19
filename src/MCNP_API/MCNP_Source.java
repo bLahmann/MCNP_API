@@ -51,14 +51,33 @@ public class MCNP_Source extends MCNP_Object {
 
         mainLine += "PAR=" + particle.getId() + " ";
 
-        if(energyDistribution != null && !energyDistribution.isEmpty())
-            mainLine += "ERG=D" + energyDistribution.getID().toString() + " ";
+        if(energyDistribution != null && !energyDistribution.isEmpty()) {
+            mainLine += "ERG=";
+            if(energyDistribution.isDelta()){
+                mainLine += energyDistribution.getNode(0).toString() + " ";
+            }else{
+                mainLine += "D" + energyDistribution.getID().toString() + " ";
+            }
 
-        if(timeDistribution != null && !timeDistribution.isEmpty())
-            mainLine += "TME=D" + timeDistribution.getID().toString() + " ";
+        }
 
-        if(directionalDistribution != null && !directionalDistribution.isEmpty())
-            mainLine += "DIR=D" + directionalDistribution.getID().toString() + " ";
+        if(timeDistribution != null && !timeDistribution.isEmpty()){
+            mainLine += "TME=";
+            if(timeDistribution.isDelta()){
+                mainLine += timeDistribution.getNode(0).toString() + " ";
+            }else{
+                mainLine += "D" + timeDistribution.getID().toString() + " ";
+            }
+        }
+
+        if(directionalDistribution != null && !directionalDistribution.isEmpty()){
+            mainLine += "DIR=";
+            if(directionalDistribution.isDelta()){
+                mainLine += directionalDistribution.getNode(0).toString() + " ";
+            }else{
+                mainLine += "D" + directionalDistribution.getID().toString() + " ";
+            }
+        }
 
         mainLine += "VEC=" + referenceVector[0] +
                        " " + referenceVector[1] +
@@ -66,13 +85,13 @@ public class MCNP_Source extends MCNP_Object {
 
         lines.add(MCNP_API_Utilities.formatCardEnd(mainLine, this.name));
 
-        if(energyDistribution != null && !energyDistribution.isEmpty())
+        if(energyDistribution != null && !energyDistribution.isEmpty() && !energyDistribution.isDelta())
             lines.add(energyDistribution.toString());
 
-        if(timeDistribution != null && !timeDistribution.isEmpty())
+        if(timeDistribution != null && !timeDistribution.isEmpty() && !timeDistribution.isDelta())
             lines.add(timeDistribution.toString());
 
-        if(directionalDistribution != null && !directionalDistribution.isEmpty())
+        if(directionalDistribution != null && !directionalDistribution.isEmpty() && !directionalDistribution.isDelta())
             lines.add(directionalDistribution.toString());
 
         String finalString = new String();

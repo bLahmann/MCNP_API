@@ -7,6 +7,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="ozeki-java-sms-sdkv4" level="application" />
+    <orderEntry type="library" name="src" level="application" />
+    <orderEntry type="library" name="com.sun.mail:javax.mail:1.4.4" level="application" />
   </component>
 </module>
-

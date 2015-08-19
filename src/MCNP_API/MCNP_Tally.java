@@ -31,6 +31,7 @@ public class MCNP_Tally extends MCNP_Object {
     private Vector<MCNP_Object> tallyLocations;
     private Vector<Double> energyBins;
     private Vector<Double> timeBins;
+    private Vector<Double> cosineBins;
 
     public MCNP_Tally(String name, TallyType tallyType, MCNP_Particle particle){
         this.totalTallies++;
@@ -43,6 +44,7 @@ public class MCNP_Tally extends MCNP_Object {
         tallyLocations = new Vector<MCNP_Object>();
         energyBins = new Vector<Double>();
         timeBins = new Vector<Double>();
+        cosineBins = new Vector<Double>();
     }
 
     public MCNP_Tally(String name, TallyType tallyType){
@@ -73,12 +75,18 @@ public class MCNP_Tally extends MCNP_Object {
         this.timeBins.add(timeBin);
     }
 
+    public void addCosineBin(Double cosineBin) { this.cosineBins.add(cosineBin); }
+
     public void setEnergyBins(Vector<Double> energyBins){
         this.energyBins = energyBins;
     }
 
     public void setTimeBins(Vector<Double> timeBins){
         this.timeBins = timeBins;
+    }
+
+    public void setCosineBins(Vector<Double> cosineBins) {
+        this.cosineBins = cosineBins;
     }
 
     public String toString(){
@@ -170,6 +178,22 @@ public class MCNP_Tally extends MCNP_Object {
             }
             lines.add(MCNP_API_Utilities.formatCardEnd(currentLine, this.name + " - Time Bins"));
         }
+
+        if(!cosineBins.isEmpty()){
+            currentLine = "*C" + tallyId + " ";
+
+            for(Double bin : cosineBins){
+                String s = String.format("%+.4e ", bin);
+                if(currentLine.length() + s.length() > 78){
+                    lines.add(MCNP_API_Utilities.formatCardEnd(currentLine));
+                    currentLine = "        ";
+                }
+
+                currentLine += s;
+            }
+            lines.add(MCNP_API_Utilities.formatCardEnd(currentLine, this.name + " - Cosine Bins"));
+        }
+
 
         String finalString = new String();
         Iterator<String> iterator = lines.iterator();

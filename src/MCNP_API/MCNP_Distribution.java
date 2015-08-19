@@ -1,5 +1,7 @@
 package MCNP_API;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
@@ -10,6 +12,15 @@ import java.util.Vector;
  * Created by Brandon Lahmann on 6/6/2015.
  */
 public class MCNP_Distribution extends MCNP_Object {
+
+    public static MCNP_Distribution deltaFunction(double value){
+        MCNP_Distribution deltaDist = new MCNP_Distribution();
+
+        Vector<Double> node = new Vector<Double>();
+        node.add(value);
+        deltaDist.setNodes(node);
+        return deltaDist;
+    }
 
     public static Integer totalDistributions = 0;
 
@@ -40,33 +51,29 @@ public class MCNP_Distribution extends MCNP_Object {
         biases = new Vector<Double>();
     }
 
-    public MCNP_Distribution(String name, String filename, NodeOption nodeOption){
+    public MCNP_Distribution(String name, String filename, NodeOption nodeOption) throws Exception{
         this(name);
         this.nodeOption = nodeOption;
 
-        try {
-            Scanner s = new Scanner(new File(filename));
-            while (s.hasNextLine()){
-                String line = s.nextLine();
-                String[] values = line.split("\\s+");
+        Scanner s = new Scanner(new File(filename));
 
-                if(values.length > 0){
-                    nodes.add(Double.parseDouble(values[0]));
-                }
-                if(values.length > 1){
-                    probabilities.add(Double.parseDouble(values[1]));
-                }
-                if(values.length > 2) {
-                    biases.add(Double.parseDouble(values[2]));
-                }
+        while (s.hasNextLine()){
+            String line = s.nextLine();
+            String[] values = line.split("\\s+");
+
+            if(values.length > 0){
+                nodes.add(Double.parseDouble(values[0]));
             }
-        }
-        catch (IOException e){
-            e.printStackTrace();
+            if(values.length > 1){
+                probabilities.add(Double.parseDouble(values[1]));
+            }
+            if(values.length > 2) {
+                biases.add(Double.parseDouble(values[2]));
+            }
         }
     }
 
-    public MCNP_Distribution(String name, String filename){
+    public MCNP_Distribution(String name, String filename) throws Exception{
         this(name, filename, NodeOption.HISTOGRAM_BOUNDS);
     }
 
@@ -87,6 +94,10 @@ public class MCNP_Distribution extends MCNP_Object {
         setNodes(nodes, NodeOption.HISTOGRAM_BOUNDS);
     }
 
+    protected Double getNode(int i){
+        return nodes.get(i);
+    }
+
     public void setProbabilities(Vector<Double> probabilities){
         this.probabilities = probabilities;
     }
@@ -97,6 +108,10 @@ public class MCNP_Distribution extends MCNP_Object {
 
     public Integer getID(){
         return this.id;
+    }
+
+    public Boolean isDelta(){
+        return nodes.size() == 1;
     }
 
     public Boolean isEmpty(){
