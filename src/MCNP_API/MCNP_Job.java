@@ -2,6 +2,8 @@ package MCNP_API;
 
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.List;
+import java.util.Vector;
 
 /**
  * Created by Brandon Lahmann on 6/7/2015.
@@ -34,13 +36,17 @@ public class MCNP_Job extends MCNP_Object {
         if(System.getProperty("os.name").toLowerCase().contains("windows")){
             command += "mpiexec -np ";
         }else{
-            command += "mpirun  -np ";
+            command += "mpirun -np ";
         }
 
         command += nodes.toString();
         command += " mcnpxMpi";
 
         runJob(command);
+    }
+
+    public void runMCNPXJob() throws Exception{
+        runJob("mcnpx");
     }
 
     private void runJob(String command) throws Exception{
@@ -60,7 +66,12 @@ public class MCNP_Job extends MCNP_Object {
         command += "o= " + outputFile.getPath() + " ";
         command += "run= " + runFile.getPath() + " ";
 
+        //ProcessBuilder pb = new ProcessBuilder(command);
+        //pb.redirectErrorStream(true);
+
         Process p = Runtime.getRuntime().exec(command);
+        p.waitFor();
+
         writer.write(command + "\n");
 
         BufferedReader stdInput = new BufferedReader(new
@@ -69,9 +80,20 @@ public class MCNP_Job extends MCNP_Object {
         String s;
         do{
             s = stdInput.readLine();
-            writer.write(s);
+
+            if(s == null){
+                break;
+            }
+
+            writer.write(s + '\n');
         }while(!s.contains("mcrun  is done"));
 
+        /*
+        String s;
+        while((s = stdInput.readLine()) != null){
+            writer.write(s);
+        }
+        */
         writer.close();
 
         String finalFilename = name + "/" + name + "_" + System.currentTimeMillis();
@@ -87,8 +109,8 @@ public class MCNP_Job extends MCNP_Object {
         }
         outputFile = tempFile;
 
-        while(!runFile.delete()){
-        }
+        //while(!runFile.delete()){
+        //}
 
         tempFile = new File(finalFilename + ".log");
         while(!logFile.renameTo(new File(finalFilename + ".log"))){
