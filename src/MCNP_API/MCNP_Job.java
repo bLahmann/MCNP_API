@@ -31,17 +31,30 @@ public class MCNP_Job extends MCNP_Object {
     }
 
     public void runMPIJob(Integer nodes) throws Exception{
+        runMPIJob(nodes, null);
+
+    }
+
+    public void runMPIJob(Integer nodes, String ... hosts) throws Exception{
         String command = new String();
 
         if(System.getProperty("os.name").toLowerCase().contains("windows")){
             command += "mpiexec -np ";
-        }else{
+        }else {
             command += "mpirun -np ";
         }
 
-        command += nodes.toString();
-        command += " mcnpxMpi";
+        command += nodes.toString() + " ";
 
+        if (hosts != null){
+            command += "-H ";
+
+            for (String host : hosts){
+                command += host + " ";
+            }
+        }
+
+        command += "mcnpxMpi";
         runJob(command);
     }
 
