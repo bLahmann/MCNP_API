@@ -22,6 +22,18 @@ public class MCNP_Distribution extends MCNP_Object {
         return deltaDist;
     }
 
+    public static MCNP_Distribution wattSpectrum(double a, double b){
+        MCNP_Distribution wattSpectrum = new MCNP_Distribution("Watt Spectrum");
+
+        Vector<Double> parameters = new Vector<Double>();
+        parameters.add(-3.0);
+        parameters.add(a);
+        parameters.add(b);
+
+        wattSpectrum.setProbabilities(parameters);
+        return wattSpectrum;
+    }
+
     public static Integer totalDistributions = 0;
 
     public enum NodeOption{

@@ -16,6 +16,7 @@ public class MCNP_Job extends MCNP_Object {
 
     private String name;
     public File inputFile, outputFile, runFile, logFile;
+    public Long executionTime = new Long(-1);
     private MCNP_Deck deck;
 
     public MCNP_Job(String name, MCNP_Deck deck){
@@ -47,14 +48,19 @@ public class MCNP_Job extends MCNP_Object {
         command += nodes.toString() + " ";
 
         if (hosts != null){
-            command += "-H ";
+            command += "-display-map -H ";
 
+            boolean first = true;
             for (String host : hosts){
-                command += host + " ";
+                if (!first) command += ",";
+                else first = false;
+
+                command += host;
             }
+            command += " ";
         }
 
-        command += "mcnpxMpi";
+        command += "/MCNP/LANL/MCNPX_MPI/bin/mcnpxMpi";
         runJob(command);
     }
 
@@ -79,9 +85,7 @@ public class MCNP_Job extends MCNP_Object {
         command += "o= " + outputFile.getPath() + " ";
         command += "run= " + runFile.getPath() + " ";
 
-        //ProcessBuilder pb = new ProcessBuilder(command);
-        //pb.redirectErrorStream(true);
-
+        long startTime = System.currentTimeMillis();
         Process p = Runtime.getRuntime().exec(command);
         p.waitFor();
 
@@ -101,12 +105,7 @@ public class MCNP_Job extends MCNP_Object {
             writer.write(s + '\n');
         }while(!s.contains("mcrun  is done"));
 
-        /*
-        String s;
-        while((s = stdInput.readLine()) != null){
-            writer.write(s);
-        }
-        */
+        executionTime = System.currentTimeMillis() - startTime;
         writer.close();
 
         String finalFilename = name + "/" + name + "_" + System.currentTimeMillis();
@@ -122,8 +121,8 @@ public class MCNP_Job extends MCNP_Object {
         }
         outputFile = tempFile;
 
-        //while(!runFile.delete()){
-        //}
+        while(!runFile.delete()){
+        }
 
         tempFile = new File(finalFilename + ".log");
         while(!logFile.renameTo(new File(finalFilename + ".log"))){

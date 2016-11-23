@@ -61,6 +61,10 @@ public class MCNP_Deck extends MCNP_Object {
         this.numberOfParticles = numberOfParticles;
     }
 
+    public void toConsole(){
+        System.out.println(this);
+    }
+
     public String toString(){
         Vector<MCNP_Surface> uniqueSurfaces = new Vector<MCNP_Surface>();
         Vector<MCNP_Material> uniqueMaterials = new Vector<MCNP_Material>();
@@ -129,23 +133,35 @@ public class MCNP_Deck extends MCNP_Object {
         }
         lines.add(modeCard);
         lines.add("NPS  " + String.format("%.4e", Math.floor(numberOfParticles)));
+        lines.add("PRDMP " + String.format("%.4e", Math.floor(numberOfParticles)) + " " +
+                String.format("%.4e", Math.floor(numberOfParticles)) + " " +
+                String.format("%.4e", 0.0) + " " +
+                String.format("%.4e", 0.0) + " " +
+                String.format("%.4e", Math.floor(numberOfParticles)));
 
         for(MCNP_Particle particle : particlesToSimulate){
             lines.add(particle.getPhysicsCard());
             lines.add(particle.getCutoffCard());
 
             String importanceCard = "imp:" + particle.getId() + " ";
+            String forcedCollisionsCard = "fcl:" + particle.getId() + " ";
             for(MCNP_Cell cell : cells){
-                String s = cell.getImportance().toString() + " ";
+                String importance = cell.getImportance().toString() + " ";
+                String forcedCollisions = cell.getForcedCollisions().toString() + " ";
 
-                if(importanceCard.length() + s.length() > 78) {
-                    lines.add(importanceCard);
-                    importanceCard = "        ";
+                if(importanceCard.length() + importance.length() > 78) {
+                    importanceCard += "\n        ";
                 }
-                importanceCard += s;
+                if(forcedCollisionsCard.length() + forcedCollisions.length() > 78) {
+                    forcedCollisionsCard += "\n        ";
+                }
+
+                importanceCard += importance;
+                forcedCollisionsCard += forcedCollisions;
             }
 
             lines.add(importanceCard);
+            lines.add(forcedCollisionsCard);
         }
 
         for(MCNP_Material material : uniqueMaterials){

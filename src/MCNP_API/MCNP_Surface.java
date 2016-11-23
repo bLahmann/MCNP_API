@@ -16,6 +16,31 @@ public class MCNP_Surface extends MCNP_Object {
     private Integer id;
     private Vector<Double> parameters;
 
+    /**
+     * Predefined sphere surfaces
+     */
+    public static MCNP_Surface sphere(Double radius){
+        return sphere(0.0, 0.0, 0.0, radius);
+    }
+
+    public static MCNP_Surface sphere(String name, Double radius){
+        return sphere(name, 0.0, 0.0, 0.0, radius);
+    }
+
+    public static MCNP_Surface sphere(Double x0, Double y0, Double z0, Double radius){
+        return sphere("Unnamed Sphere Surface", x0, y0, z0, radius);
+    }
+
+    public static MCNP_Surface sphere(String name, Double x0, Double y0, Double z0, Double radius){
+        Vector<Double> parameters = new Vector<Double>();
+        parameters.add(x0);
+        parameters.add(y0);
+        parameters.add(z0);
+        parameters.add(radius);
+
+        return new MCNP_Surface(name, "s", parameters);
+    }
+
     public MCNP_Surface(String name, String type, Vector<Double> parameters){
         MCNP_Surface.totalSurfaces++;
 
@@ -52,7 +77,7 @@ public class MCNP_Surface extends MCNP_Object {
         currentLine += id.toString() + " " + type + " ";
 
         for(Double parameter : parameters){
-            String s = String.format("%+.8e ", parameter);
+            String s = String.format("%+.6e ", parameter);
 
             if(currentLine.length() + s.length() > 78){
                 lines.add(MCNP_API_Utilities.formatCardEnd(currentLine));

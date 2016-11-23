@@ -13,8 +13,43 @@ public class MCNP_Material extends MCNP_Object {
     private String name;
     private Integer id;
     private Vector<MCNP_Isotope> isotopes;
-    private Vector<Double>  fractions;
+    private Vector<Double> fractions;
     private Double density;
+
+    public static MCNP_Material cr39(String crossSectionLibrary) {
+        MCNP_Material material = new MCNP_Material("CR-39", -1.31);
+        material.addIsotope(new MCNP_Isotope("H1", 1, 1, crossSectionLibrary), 18.0);
+        material.addIsotope(new MCNP_Isotope("C12", 6, 12, crossSectionLibrary), 12.0);
+        material.addIsotope(new MCNP_Isotope("O16", 8, 16, crossSectionLibrary), 7.0);
+        return material;
+    }
+
+    public static MCNP_Material ch(String crossSectionLibrary) {
+        MCNP_Material material = new MCNP_Material("CH", -1.06);
+        material.addIsotope(new MCNP_Isotope("H1", 1, 1, crossSectionLibrary), 1.0);
+        material.addIsotope(new MCNP_Isotope("C12", 6, 12, crossSectionLibrary), 1.0);
+        return material;
+    }
+
+    public static MCNP_Material cd2(String crossSectionLibrary)
+    {
+        MCNP_Material material = new MCNP_Material("CD2", -0.93);
+        material.addIsotope(new MCNP_Isotope("H2 (D)", 1, 2, crossSectionLibrary), 2.0);
+        material.addIsotope(new MCNP_Isotope("C12", 6, 12, crossSectionLibrary), 1.0);
+        return material;
+
+    }
+    public static MCNP_Material aluminum(String crossSectionLibrary){
+        MCNP_Material material = new MCNP_Material("Al", -2.7);
+        material.addIsotope(new MCNP_Isotope("Al27", 13, 27, crossSectionLibrary), 1.0);
+        return material;
+    }
+
+    public static MCNP_Material tantalum(String crossSectionLibrary) {
+        MCNP_Material material = new MCNP_Material("Ta", -16.69);
+        material.addIsotope(new MCNP_Isotope("Ta181", 73, 181, crossSectionLibrary), 1.0);
+        return material;
+    }
 
     public MCNP_Material(String name, Double density){
         this.totalMaterials++;
@@ -33,6 +68,10 @@ public class MCNP_Material extends MCNP_Object {
     public void addIsotope(MCNP_Isotope isotope, Double fraction){
         this.isotopes.add(isotope);
         this.fractions.add(fraction);
+    }
+
+    public String getName() {
+        return name;
     }
 
     protected Integer getID(){
