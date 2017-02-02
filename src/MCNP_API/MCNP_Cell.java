@@ -1,7 +1,5 @@
 package MCNP_API;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -17,7 +15,7 @@ public class MCNP_Cell extends MCNP_Object {
     private MCNP_Material material;
     private Vector<MCNP_SurfaceGroup> surfaceGroups;
     private Integer importance;
-    private Integer forcedCollisions = 0;
+    private Double forcedCollisions = 0.0;
 
     public MCNP_Cell(String name, MCNP_Material material, Integer importance){
         this.totalCells++;
@@ -51,9 +49,8 @@ public class MCNP_Cell extends MCNP_Object {
         this.surfaceGroups.add(new MCNP_SurfaceGroup());
     }
 
-    public void setForcedCollisions(Boolean forcedCollisions) {
-        if (forcedCollisions)   this.forcedCollisions = 1;
-        else                    this.forcedCollisions = 0;
+    public void setForcedCollisions(Double forcedCollisions){
+        this.forcedCollisions = forcedCollisions;
     }
 
     protected Integer getID(){
@@ -72,7 +69,7 @@ public class MCNP_Cell extends MCNP_Object {
         return this.importance;
     }
 
-    protected Integer getForcedCollisions() {
+    protected Double getForcedCollisions() {
         return forcedCollisions;
     }
 

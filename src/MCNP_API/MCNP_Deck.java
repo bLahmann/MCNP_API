@@ -1,5 +1,6 @@
 package MCNP_API;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -10,6 +11,7 @@ public class MCNP_Deck extends MCNP_Object {
 
     private String name;
 
+    private Vector<MCNP_Surface> surfaces;
     private Vector<MCNP_Cell> cells;
     private Vector<MCNP_Tally> tallies;
     private Vector<MCNP_Particle> particlesToSimulate;
@@ -30,6 +32,7 @@ public class MCNP_Deck extends MCNP_Object {
 
         this.name = name;
 
+        surfaces = new Vector<MCNP_Surface>();
         cells = new Vector<MCNP_Cell>();
         tallies = new Vector<MCNP_Tally>();
         particlesToSimulate = new Vector<MCNP_Particle>();
@@ -42,6 +45,10 @@ public class MCNP_Deck extends MCNP_Object {
 
     public void addTally(MCNP_Tally tally){
         tallies.add(tally);
+    }
+
+    public void addSurface(MCNP_Surface surface){
+        surfaces.add(surface);
     }
 
     public void addParticleToSimulate(MCNP_Particle particleToSimulate){
@@ -66,7 +73,6 @@ public class MCNP_Deck extends MCNP_Object {
     }
 
     public String toString(){
-        Vector<MCNP_Surface> uniqueSurfaces = new Vector<MCNP_Surface>();
         Vector<MCNP_Material> uniqueMaterials = new Vector<MCNP_Material>();
         Vector<String> lines = new Vector<String>();
 
@@ -98,8 +104,8 @@ public class MCNP_Deck extends MCNP_Object {
 
             for(MCNP_SurfaceGroup surfaceGroup : cell.getSurfaceGroups()){
                 for(MCNP_Surface surface : surfaceGroup.getSurfaces()){
-                    if(!uniqueSurfaces.contains(surface)){
-                        uniqueSurfaces.add(surface);
+                    if(!surfaces.contains(surface)){
+                        surfaces.add(surface);
                     }
                 }
             }
@@ -116,7 +122,7 @@ public class MCNP_Deck extends MCNP_Object {
         lines.add(MCNP_API_Utilities.commentLine);
         lines.add("C ");
 
-        for(MCNP_Surface surface : uniqueSurfaces){
+        for(MCNP_Surface surface : surfaces){
             lines.add(surface.toString());
         }
         lines.add("");
@@ -143,25 +149,37 @@ public class MCNP_Deck extends MCNP_Object {
             lines.add(particle.getPhysicsCard());
             lines.add(particle.getCutoffCard());
 
+            ArrayList<String> importanceCards = new ArrayList<String>();
+            ArrayList<String> forcedCollisionCards = new ArrayList<String>();
             String importanceCard = "imp:" + particle.getId() + " ";
             String forcedCollisionsCard = "fcl:" + particle.getId() + " ";
+
             for(MCNP_Cell cell : cells){
                 String importance = cell.getImportance().toString() + " ";
                 String forcedCollisions = cell.getForcedCollisions().toString() + " ";
 
                 if(importanceCard.length() + importance.length() > 78) {
-                    importanceCard += "\n        ";
+                    importanceCards.add(importanceCard);
+                    importanceCard = "        ";
                 }
                 if(forcedCollisionsCard.length() + forcedCollisions.length() > 78) {
-                    forcedCollisionsCard += "\n        ";
+                    forcedCollisionCards.add(forcedCollisionsCard);
+                    forcedCollisionsCard = "        ";
                 }
 
                 importanceCard += importance;
                 forcedCollisionsCard += forcedCollisions;
             }
 
-            lines.add(importanceCard);
-            lines.add(forcedCollisionsCard);
+            importanceCards.add(importanceCard);
+            for (String card : importanceCards) {
+                lines.add(card);
+            }
+
+            forcedCollisionCards.add(forcedCollisionsCard);
+            for (String card : forcedCollisionCards) {
+                lines.add(card);
+            }
         }
 
         for(MCNP_Material material : uniqueMaterials){

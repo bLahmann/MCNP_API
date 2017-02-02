@@ -77,7 +77,7 @@ public class MCNP_Surface extends MCNP_Object {
         currentLine += id.toString() + " " + type + " ";
 
         for(Double parameter : parameters){
-            String s = String.format("%+.6e ", parameter);
+            String s = String.format("%+.10e ", parameter);
 
             if(currentLine.length() + s.length() > 78){
                 lines.add(MCNP_API_Utilities.formatCardEnd(currentLine));

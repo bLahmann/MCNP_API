@@ -16,37 +16,49 @@ public class MCNP_Material extends MCNP_Object {
     private Vector<Double> fractions;
     private Double density;
 
+    public static MCNP_Material deuterium(String crossSectionLibrary){
+        MCNP_Material material = new MCNP_Material("Deuterium", -1.0);
+        material.addIsotope(new MCNP_Isotope("H2 (D)", 1, 2, crossSectionLibrary), 1.0);
+        return material;
+    }
+
+    public static MCNP_Material beryllium(String crossSectionLibrary){
+        MCNP_Material material = new MCNP_Material("Beryllium", -1.85);
+        material.addIsotope(new MCNP_Isotope("Be9", 4, 9, crossSectionLibrary), 1.0);
+        return material;
+    }
+
     public static MCNP_Material cr39(String crossSectionLibrary) {
-        MCNP_Material material = new MCNP_Material("CR-39", -1.31);
+        MCNP_Material material = new MCNP_Material("CR-39 Nuclear Track Detector", -1.31);
         material.addIsotope(new MCNP_Isotope("H1", 1, 1, crossSectionLibrary), 18.0);
         material.addIsotope(new MCNP_Isotope("C12", 6, 12, crossSectionLibrary), 12.0);
         material.addIsotope(new MCNP_Isotope("O16", 8, 16, crossSectionLibrary), 7.0);
         return material;
     }
 
-    public static MCNP_Material ch(String crossSectionLibrary) {
-        MCNP_Material material = new MCNP_Material("CH", -1.06);
-        material.addIsotope(new MCNP_Isotope("H1", 1, 1, crossSectionLibrary), 1.0);
+    public static MCNP_Material ch2(String crossSectionLibrary) {
+        MCNP_Material material = new MCNP_Material("1:2 Polyethylene", -1.00);
+        material.addIsotope(new MCNP_Isotope("H1", 1, 1, crossSectionLibrary), 2.0);
         material.addIsotope(new MCNP_Isotope("C12", 6, 12, crossSectionLibrary), 1.0);
         return material;
     }
 
     public static MCNP_Material cd2(String crossSectionLibrary)
     {
-        MCNP_Material material = new MCNP_Material("CD2", -0.93);
+        MCNP_Material material = new MCNP_Material("1:2 Deuterated Polyethylene", -0.93);
         material.addIsotope(new MCNP_Isotope("H2 (D)", 1, 2, crossSectionLibrary), 2.0);
         material.addIsotope(new MCNP_Isotope("C12", 6, 12, crossSectionLibrary), 1.0);
         return material;
 
     }
     public static MCNP_Material aluminum(String crossSectionLibrary){
-        MCNP_Material material = new MCNP_Material("Al", -2.7);
+        MCNP_Material material = new MCNP_Material("Aluminum", -2.7);
         material.addIsotope(new MCNP_Isotope("Al27", 13, 27, crossSectionLibrary), 1.0);
         return material;
     }
 
     public static MCNP_Material tantalum(String crossSectionLibrary) {
-        MCNP_Material material = new MCNP_Material("Ta", -16.69);
+        MCNP_Material material = new MCNP_Material("Tantalum", -16.69);
         material.addIsotope(new MCNP_Isotope("Ta181", 73, 181, crossSectionLibrary), 1.0);
         return material;
     }
@@ -80,6 +92,10 @@ public class MCNP_Material extends MCNP_Object {
 
     protected Double getDensity(){
         return this.density;
+    }
+
+    public void setDensity(Double density) {
+        this.density = density;
     }
 
     public String toString(){

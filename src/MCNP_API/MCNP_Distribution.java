@@ -154,7 +154,7 @@ public class MCNP_Distribution extends MCNP_Object {
             }
 
             for(Double node : nodes){
-                String s = String.format("%+.4e ", node);
+                String s = String.format("%+.6e ", node);
 
                 if(currentLine.length() + s.length() > 78){
                     lines.add(MCNP_API_Utilities.formatCardEnd(currentLine));
@@ -172,7 +172,7 @@ public class MCNP_Distribution extends MCNP_Object {
             currentLine = "SP" + this.id.toString() + "   ";
 
             for(Double probability : probabilities){
-                String s = String.format("%+.4e ", probability);
+                String s = String.format("%+.6e ", probability);
 
                 if(currentLine.length() + s.length() > 78){
                     lines.add(MCNP_API_Utilities.formatCardEnd(currentLine));
@@ -189,7 +189,7 @@ public class MCNP_Distribution extends MCNP_Object {
             currentLine = "SB" + this.id.toString() + "   ";
 
             for(Double bias : biases){
-                String s = String.format("%+.4e ", bias);
+                String s = String.format("%+.6e ", bias);
 
                 if(currentLine.length() + s.length() > 78){
                     lines.add(MCNP_API_Utilities.formatCardEnd(currentLine));
