@@ -1,7 +1,6 @@
 package MCNP_API;
 
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * Created by Brandon Lahmann on 6/6/2015.
@@ -46,7 +45,7 @@ public class MCNP_Source extends MCNP_Object {
     }
 
     public String toString(){
-        Vector<String> lines = new Vector<String>();
+        ArrayList<String> lines = new ArrayList<>();
         String mainLine = "SDEF ";
 
         mainLine += "PAR=" + particle.getId() + " ";
@@ -94,12 +93,14 @@ public class MCNP_Source extends MCNP_Object {
         if(directionalDistribution != null && !directionalDistribution.isEmpty() && !directionalDistribution.isDelta())
             lines.add(directionalDistribution.toString());
 
-        String finalString = new String();
-        Iterator<String> iterator = lines.iterator();
-        while(iterator.hasNext()){
-            finalString += iterator.next();
-            if(iterator.hasNext())
+        String finalString = "";
+        boolean first = true;
+        for (String line : lines){
+            if (!first){
                 finalString += "\n";
+            }
+            finalString += line;
+            first = false;
         }
 
         return finalString;

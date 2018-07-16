@@ -11,11 +11,11 @@ public class MCNP_Deck extends MCNP_Object {
 
     private String name;
 
-    private Vector<MCNP_Surface> surfaces;
-    private Vector<MCNP_Cell> cells;
-    private Vector<MCNP_Tally> tallies;
-    private Vector<MCNP_Particle> particlesToSimulate;
-    private Vector<Pair> parameters;
+    private ArrayList<MCNP_Surface> surfaces = new ArrayList<>();
+    private ArrayList<MCNP_Cell> cells = new ArrayList<>();
+    private ArrayList<MCNP_Tally> tallies = new ArrayList<>();
+    private ArrayList<MCNP_Particle> particlesToSimulate = new ArrayList<>();
+    private ArrayList<Parameter> parameters = new ArrayList<>();
     private Integer numberOfParticles = 0;
     private MCNP_Source source;
 
@@ -31,12 +31,6 @@ public class MCNP_Deck extends MCNP_Object {
         MCNP_Cell.totalCells = 0;
 
         this.name = name;
-
-        surfaces = new Vector<MCNP_Surface>();
-        cells = new Vector<MCNP_Cell>();
-        tallies = new Vector<MCNP_Tally>();
-        particlesToSimulate = new Vector<MCNP_Particle>();
-        parameters = new Vector<Pair>();
     }
 
     public void addCell(MCNP_Cell cell){
@@ -57,10 +51,10 @@ public class MCNP_Deck extends MCNP_Object {
 
     public void addParameter(String name, Object parameter){
         if(parameters.isEmpty()){
-            parameters.add(new Pair("Parameter", "Value"));
+            parameters.add(new Parameter("Parameter", "Value"));
         }
 
-        parameters.add(new Pair(name, parameter));
+        parameters.add(new Parameter(name, parameter.toString()));
     }
 
     public void setSource(MCNP_Source source, Integer numberOfParticles){
@@ -83,13 +77,8 @@ public class MCNP_Deck extends MCNP_Object {
         lines.add("C " + MCNP_API_Utilities.centerString("Author: " + System.getProperty("user.name"), 76));
         lines.add("C ");
 
-        for(Pair parameter : parameters){
-            String s = new String("C ");
-            for(int i = 0; i < 38 - parameter.first().toString().length(); i++){
-                s += " ";
-            }
-            s += parameter.first().toString() + " : " + parameter.second().toString();
-            lines.add(s);
+        for(Parameter parameter : parameters){
+            lines.add(parameter.toString());
         }
         lines.add("C ");
 
@@ -99,14 +88,24 @@ public class MCNP_Deck extends MCNP_Object {
         lines.add(MCNP_API_Utilities.commentLine);
         lines.add("C ");
 
+        // TODO: Temp line
+        ArrayList<String> voidCellLines = new ArrayList<>();
+        String voidLine = "999 0";
+
         for(MCNP_Cell cell : cells){
             lines.add(cell.toString());
 
-            for(MCNP_SurfaceGroup surfaceGroup : cell.getSurfaceGroups()){
-                for(MCNP_Surface surface : surfaceGroup.getSurfaces()){
-                    if(!surfaces.contains(surface)){
-                        surfaces.add(surface);
-                    }
+
+            if(voidLine.length() + String.format(" #%d", cell.getID()).length() > 78) {
+                voidCellLines.add(voidLine);
+                voidLine = "        ";
+            }
+            voidLine += String.format(" #%d", cell.getID());
+
+
+            for(MCNP_Surface surface : cell.getSurfaces()){
+                if(!surfaces.contains(surface)){
+                    surfaces.add(surface);
                 }
             }
 
@@ -114,6 +113,13 @@ public class MCNP_Deck extends MCNP_Object {
                 uniqueMaterials.add(cell.getMaterial());
             }
         }
+
+
+        voidCellLines.add(voidLine);
+        for (String card : voidCellLines) {
+            lines.add(card);
+        }
+
         lines.add("");
 
         // Write surface cards
@@ -171,15 +177,19 @@ public class MCNP_Deck extends MCNP_Object {
                 forcedCollisionsCard += forcedCollisions;
             }
 
+            // This extra addition is related to the hard coded "void card"
+            importanceCard += "1";
             importanceCards.add(importanceCard);
             for (String card : importanceCards) {
                 lines.add(card);
             }
 
+            forcedCollisionsCard += "0.0";
             forcedCollisionCards.add(forcedCollisionsCard);
             for (String card : forcedCollisionCards) {
                 lines.add(card);
             }
+
         }
 
         for(MCNP_Material material : uniqueMaterials){
@@ -203,6 +213,27 @@ public class MCNP_Deck extends MCNP_Object {
 
         return finalString;
     }
+
+    public class Parameter{
+        private String name;
+        private String value;
+
+        public Parameter(String name, String value) {
+            this.name = name;
+            this.value = value;
+        }
+
+        public String toString(){
+            String s = "C ";
+            for(int i = 0; i < 38 - name.length(); i++){
+                s += " ";
+            }
+            s += name + " : " + value;
+
+            return s;
+        }
+    }
+
 
 
 

@@ -1,9 +1,7 @@
 package MCNP_API;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.Scanner;
 import java.util.Vector;

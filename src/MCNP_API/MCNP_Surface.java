@@ -16,6 +16,8 @@ public class MCNP_Surface extends MCNP_Object {
     private Integer id;
     private Vector<Double> parameters;
 
+    private boolean reflective = false;
+
     /**
      * Predefined sphere surfaces
      */
@@ -41,6 +43,111 @@ public class MCNP_Surface extends MCNP_Object {
         return new MCNP_Surface(name, "s", parameters);
     }
 
+    public static MCNP_Surface box(String name, Vec3d corner, Vec3d sideVector1, Vec3d sideVector2, Vec3d sideVector3){
+        MCNP_Surface box = new MCNP_Surface(name, "BOX");
+
+        // Corner Vector
+        box.addParameter(corner.x);
+        box.addParameter(corner.y);
+        box.addParameter(corner.z);
+
+        // Side Vector 1
+        box.addParameter(sideVector1.x);
+        box.addParameter(sideVector1.y);
+        box.addParameter(sideVector1.z);
+
+        // Side Vector 2
+        box.addParameter(sideVector2.x);
+        box.addParameter(sideVector2.y);
+        box.addParameter(sideVector2.z);
+
+        // Side Vector 3
+        box.addParameter(sideVector3.x);
+        box.addParameter(sideVector3.y);
+        box.addParameter(sideVector3.z);
+
+        return box;
+    }
+
+    public static MCNP_Surface canAboutZAxis(String name, Vec3d baseCenter, double height, double radius){
+        return MCNP_Surface.can(name, baseCenter, new Vec3d(0.0, 0.0, height), radius);
+    }
+
+    public static MCNP_Surface can(String name, Vec3d baseCenter, Vec3d heightVector, double radius){
+        MCNP_Surface can = new MCNP_Surface(name, "RCC");
+
+        // Base Vector
+        can.addParameter(baseCenter.x);
+        can.addParameter(baseCenter.y);
+        can.addParameter(baseCenter.z);
+
+        // Height Vector
+        can.addParameter(heightVector.x);
+        can.addParameter(heightVector.y);
+        can.addParameter(heightVector.z);
+
+        // Radius
+        can.addParameter(radius);
+
+        return can;
+    }
+
+    public static MCNP_Surface truncatedConeAboutZ(String name, Vec3d baseCenter, double height, double lowerRadius, double upperRadius){
+        return MCNP_Surface.truncatedCone(name, baseCenter, new Vec3d(0.0, 0.0, height), lowerRadius, upperRadius);
+    }
+
+    public static MCNP_Surface truncatedCone(String name, Vec3d baseCenter, Vec3d heightVector, double lowerRadius, double upperRadius){
+        MCNP_Surface truncatedCone = new MCNP_Surface(name, "TRC");
+
+        // Base Vector
+        truncatedCone.addParameter(baseCenter.x);
+        truncatedCone.addParameter(baseCenter.y);
+        truncatedCone.addParameter(baseCenter.z);
+
+        // Height Vector
+        truncatedCone.addParameter(heightVector.x);
+        truncatedCone.addParameter(heightVector.y);
+        truncatedCone.addParameter(heightVector.z);
+
+        // Radius
+        truncatedCone.addParameter(lowerRadius);
+        truncatedCone.addParameter(upperRadius);
+
+        return truncatedCone;
+    }
+
+    public static MCNP_Surface wedge(String name, Vec3d corner, Vec3d sideVector1, Vec3d sideVector2, Vec3d sideVector3){
+        MCNP_Surface wedge = new MCNP_Surface(name, "WED");
+
+        // Corner Vector
+        wedge.addParameter(corner.x);
+        wedge.addParameter(corner.y);
+        wedge.addParameter(corner.z);
+
+        // Side Vector 1
+        wedge.addParameter(sideVector1.x);
+        wedge.addParameter(sideVector1.y);
+        wedge.addParameter(sideVector1.z);
+
+        // Side Vector 2
+        wedge.addParameter(sideVector2.x);
+        wedge.addParameter(sideVector2.y);
+        wedge.addParameter(sideVector2.z);
+
+        // Side Vector 3
+        wedge.addParameter(sideVector3.x);
+        wedge.addParameter(sideVector3.y);
+        wedge.addParameter(sideVector3.z);
+
+        return wedge;
+    }
+
+
+
+    /**
+     * Default constructors
+     */
+
     public MCNP_Surface(String name, String type, Vector<Double> parameters){
         MCNP_Surface.totalSurfaces++;
 
@@ -62,9 +169,15 @@ public class MCNP_Surface extends MCNP_Object {
         this("Unnamed " + type + " Surface", type, new Vector<Double>());
     }
 
+    public void setReflective(boolean reflective) {
+        this.reflective = reflective;
+    }
+
     public void addParameter(Double parameter){
         this.parameters.add(parameter);
     }
+
+
 
     protected Integer getID(){
         return this.id;
@@ -74,13 +187,17 @@ public class MCNP_Surface extends MCNP_Object {
         Vector<String> lines = new Vector<String>();
         String currentLine = new String();
 
+        if (reflective){
+            currentLine += "*";
+        }
+
         currentLine += id.toString() + " " + type + " ";
 
         for(Double parameter : parameters){
-            String s = String.format("%+.10e ", parameter);
+            String s = String.format("%+.8e ", parameter);
 
             if(currentLine.length() + s.length() > 78){
-                lines.add(MCNP_API_Utilities.formatCardEnd(currentLine));
+                lines.add(MCNP_API_Utilities.formatCardEnd(currentLine) + "&");
                 currentLine = "    ";
             }
 

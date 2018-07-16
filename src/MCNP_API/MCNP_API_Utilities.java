@@ -9,6 +9,21 @@ public class MCNP_API_Utilities {
 
     protected static final String commentLine = "C ******************************************************************************";
 
+    public static double[] linspace(double a, double b, int N){
+
+        double[] values = new double[N];
+        for (int i = 0; i < values.length; i++){
+            values[i] = a + (b - a) * i / (N-1);
+        }
+        return values;
+
+    }
+
+    public static double[] linspace(double a, double b, double dx){
+        int N = (int) Math.round((b-a)/dx) + 1;
+        return linspace(a, b, N);
+    }
+
     protected static String formatCardEnd(String card){
         while(card.length() < 79){
             card += " ";

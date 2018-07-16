@@ -12,6 +12,7 @@ import java.util.Vector;
  */
 public class MCNP_Job extends MCNP_Object {
 
+    private static final File storageDir = new File("jobFiles");
     private static final File runningDir = new File("runningDir");
 
     private String name;
@@ -23,6 +24,9 @@ public class MCNP_Job extends MCNP_Object {
         this.name = name;
         this.deck = deck;
 
+        storageDir.mkdirs();
+        runningDir.mkdirs();
+
         String tempFilename = runningDir.getName() + "/tempFile";
 
         inputFile = new File(tempFilename + ".input");
@@ -32,8 +36,7 @@ public class MCNP_Job extends MCNP_Object {
     }
 
     public void runMPIJob(Integer nodes) throws Exception{
-        runMPIJob(nodes, null);
-
+        runMPIJob(nodes);
     }
 
     public void runMPIJob(Integer nodes, String ... hosts) throws Exception{
@@ -47,7 +50,7 @@ public class MCNP_Job extends MCNP_Object {
 
         command += nodes.toString() + " ";
 
-        if (hosts != null){
+        if (hosts.length > 0){
             command += "-display-map -H ";
 
             boolean first = true;
@@ -60,7 +63,7 @@ public class MCNP_Job extends MCNP_Object {
             command += " ";
         }
 
-        command += "/MCNP/LANL/MCNPX_MPI/bin/mcnpxMpi";
+        command += "/MCNP/mcnpx";
         runJob(command);
     }
 
@@ -69,8 +72,6 @@ public class MCNP_Job extends MCNP_Object {
     }
 
     private void runJob(String command) throws Exception{
-
-        runningDir.mkdir();
 
         inputFile.createNewFile();
         FileWriter writer = new FileWriter(inputFile);
@@ -108,8 +109,8 @@ public class MCNP_Job extends MCNP_Object {
         executionTime = System.currentTimeMillis() - startTime;
         writer.close();
 
-        String finalFilename = name + "/" + name + "_" + System.currentTimeMillis();
-        new File(name).mkdir();
+        String finalFilename = storageDir.getAbsolutePath() + "/" + name + "/" + name + "_" + System.currentTimeMillis();
+        new File(storageDir, name).mkdir();
 
         File tempFile = new File(finalFilename + ".input");
         while(!inputFile.renameTo(tempFile)){

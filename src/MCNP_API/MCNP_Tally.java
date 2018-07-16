@@ -127,6 +127,7 @@ public class MCNP_Tally extends MCNP_Object {
                 break;
         }
 
+        // Main Line
         for(MCNP_Object tallyLocation : tallyLocations){
             String s = new String();
             if(tallyLocation.getClass().equals(MCNP_Cell.class)){
@@ -146,8 +147,11 @@ public class MCNP_Tally extends MCNP_Object {
         }
         lines.add(MCNP_API_Utilities.formatCardEnd(currentLine, this.name));
 
+        // Comment like
+        lines.add(MCNP_API_Utilities.formatCardEnd("FC" + tallyId.toString() + " " + this.name, this.name +" - Title"));
+
         // Multiplier line
-        lines.add("FM" + tallyId.toString() + " " + String.format("%+.4e ", multiplier));
+        lines.add(MCNP_API_Utilities.formatCardEnd("FM" + tallyId.toString() + " " + String.format("%+.4e ", multiplier), this.name + " - Multiplier"));
 
         if(!energyBins.isEmpty()){
             currentLine = "E" + tallyId + " ";
