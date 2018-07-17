@@ -65,4 +65,32 @@ public class Material_Library {
         material.addIsotope(new MCNP_Isotope("Ti50", 22, 50, crossSectionLibrary), 0.0518);
         return material;
     }
+
+    public static MCNP_Material AlSl304_SS(String crossSectionLibrary) {
+        MCNP_Material material = new MCNP_Material("AISI SS", -8.0);
+        material.addIsotope(new MCNP_Isotope("12C",  6, 12, crossSectionLibrary), 1.8096E-03);
+        material.addIsotope(new MCNP_Isotope("13C",  6, 13, crossSectionLibrary), 2.0127E-05);
+        material.addIsotope(new MCNP_Isotope("50Cr",  24, 50, crossSectionLibrary), 8.7232E-03);
+        material.addIsotope(new MCNP_Isotope("52Cr",  24, 52, crossSectionLibrary), 1.6822E-01);
+        material.addIsotope(new MCNP_Isotope("53Cr",  24, 53, crossSectionLibrary), 1.9075E-02);
+        material.addIsotope(new MCNP_Isotope("54Cr",  24, 54, crossSectionLibrary), 4.7481E-03);
+        material.addIsotope(new MCNP_Isotope("54Fe",  26, 54, crossSectionLibrary), 4.0387E-02);
+        material.addIsotope(new MCNP_Isotope("56Fe",  26, 56, crossSectionLibrary), 6.3342E-01);
+        material.addIsotope(new MCNP_Isotope("57Fe",  26, 57, crossSectionLibrary), 1.4636E-02);
+        material.addIsotope(new MCNP_Isotope("58Fe",  26, 58, crossSectionLibrary), 1.9331E-03);
+        material.addIsotope(new MCNP_Isotope("55Mn",  25, 55, crossSectionLibrary), 1.0001E-02);
+        material.addIsotope(new MCNP_Isotope("58Ni",  28, 58, crossSectionLibrary), 5.8946E-02);
+        material.addIsotope(new MCNP_Isotope("60Ni",  28, 60, crossSectionLibrary), 2.2706E-02);
+        material.addIsotope(new MCNP_Isotope("61Ni",  28, 61, crossSectionLibrary), 9.8710E-04);
+        material.addIsotope(new MCNP_Isotope("62Ni",  28, 62, crossSectionLibrary), 3.1475E-03);
+        material.addIsotope(new MCNP_Isotope("64Ni",  28, 64, crossSectionLibrary), 8.0180E-04);
+        material.addIsotope(new MCNP_Isotope("31P",  15, 31, crossSectionLibrary), 3.9911E-04);
+        material.addIsotope(new MCNP_Isotope("32S",  16, 32, crossSectionLibrary), 2.4414E-04);
+        material.addIsotope(new MCNP_Isotope("33S",  16, 33, crossSectionLibrary), 1.9276E-06);
+        material.addIsotope(new MCNP_Isotope("34S",  16, 34, crossSectionLibrary), 1.0923E-05);
+        material.addIsotope(new MCNP_Isotope("28Si",  14, 28, crossSectionLibrary), 9.0183E-03);
+        material.addIsotope(new MCNP_Isotope("29Si",  14, 29, crossSectionLibrary), 4.5972E-04);
+        material.addIsotope(new MCNP_Isotope("30Si",  14, 30, crossSectionLibrary), 3.0322E-04);
+        return material;
+    }
 }
