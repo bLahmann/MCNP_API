@@ -518,7 +518,7 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
         this.addTally(protonSignalTally);
         this.addTally(neutronBackgroundTally);
         this.addTally(neutronsBeforeShieldingTally);
-        
+
 
         /**
          * Options / Physics Cards
