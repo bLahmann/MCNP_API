@@ -14,6 +14,7 @@ public class MCNP_Deck extends MCNP_Object {
     private ArrayList<MCNP_Surface> surfaces = new ArrayList<>();
     private ArrayList<MCNP_Cell> cells = new ArrayList<>();
     private ArrayList<MCNP_Tally> tallies = new ArrayList<>();
+    private ArrayList<MCNP_MeshTally> meshTallies = new ArrayList<>();
     private ArrayList<MCNP_Particle> particlesToSimulate = new ArrayList<>();
     private ArrayList<Parameter> parameters = new ArrayList<>();
     private Integer numberOfParticles = 0;
@@ -41,6 +42,10 @@ public class MCNP_Deck extends MCNP_Object {
         tallies.add(tally);
     }
 
+    public void addMeshTally(MCNP_MeshTally meshTally){
+        meshTallies.add(meshTally);
+    }
+
     public void addSurface(MCNP_Surface surface){
         surfaces.add(surface);
     }
@@ -54,7 +59,16 @@ public class MCNP_Deck extends MCNP_Object {
             parameters.add(new Parameter("Parameter", "Value"));
         }
 
-        parameters.add(new Parameter(name, parameter.toString()));
+        if (parameter == null){
+            parameters.add(new Parameter(name, "null"));
+        }
+        else if (parameter.getClass() == MCNP_Material.class){          // TODO: generalize this to MCNP Objects
+            MCNP_Material material = (MCNP_Material) parameter;
+            parameters.add(new Parameter(name, material.getName()));
+        }
+        else {
+            parameters.add(new Parameter(name, parameter.toString()));
+        }
     }
 
     public void setSource(MCNP_Source source, Integer numberOfParticles){
@@ -164,11 +178,11 @@ public class MCNP_Deck extends MCNP_Object {
                 String importance = cell.getImportance().toString() + " ";
                 String forcedCollisions = cell.getForcedCollisions().toString() + " ";
 
-                if(importanceCard.length() + importance.length() > 78) {
+                if(importanceCard.length() + importance.length() > 77) {
                     importanceCards.add(importanceCard);
                     importanceCard = "        ";
                 }
-                if(forcedCollisionsCard.length() + forcedCollisions.length() > 78) {
+                if(forcedCollisionsCard.length() + forcedCollisions.length() > 77) {
                     forcedCollisionCards.add(forcedCollisionsCard);
                     forcedCollisionsCard = "        ";
                 }
@@ -187,6 +201,7 @@ public class MCNP_Deck extends MCNP_Object {
             forcedCollisionsCard += "0.0";
             forcedCollisionCards.add(forcedCollisionsCard);
             for (String card : forcedCollisionCards) {
+                if (particle.getId().equals("n"))
                 lines.add(card);
             }
 
@@ -200,6 +215,10 @@ public class MCNP_Deck extends MCNP_Object {
 
         for(MCNP_Tally tally : tallies){
             lines.add(tally.toString());
+        }
+
+        for (MCNP_MeshTally meshTally : meshTallies){
+            lines.add(meshTally.toString());
         }
 
 

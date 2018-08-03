@@ -11,7 +11,8 @@ public class MCNP_Particle extends MCNP_Object {
 
     public static MCNP_Particle neutron(){
         MCNP_Particle neutron = new MCNP_Particle("Neutron", "n", 0, 1);
-        neutron.setPhysicsOptions(100.0, 0.0, false, -1, -1, 0, 1.0);
+        //neutron.setPhysicsOptions(100.0, 0.0, false, -1, -1, 0, 1.0);     // MCNPX
+        neutron.setPhysicsOptions(100.0, 0.0, 0, "J J J", 1.0, -1, "J J J", 0, 0);
         neutron.setCutoffOptions("J", 0.0);
         return neutron;
     }
@@ -32,7 +33,8 @@ public class MCNP_Particle extends MCNP_Object {
 
     public static MCNP_Particle proton(){
         MCNP_Particle proton = new MCNP_Particle("Proton", "H", 1, 1);
-        proton.setPhysicsOptions(100.0, 0.0, -1, "J", 0, "J", 0, "J J J", 0.917);
+        //proton.setPhysicsOptions(100.0, 0.0, -1, "J", 0, "J", 0, "J J J", 0.917);     // MCNPX
+        proton.setPhysicsOptions(100.0, 0, -1, "J", 0, "J", 0, "J J J", 0, 0, 0, 0.917);
         proton.setCutoffOptions("J", 0.001);
         return proton;
     }

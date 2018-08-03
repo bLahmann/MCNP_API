@@ -11,27 +11,31 @@ import java.util.Vector;
 /**
  * Created by lahmann on 2016-11-22.
  */
-public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
+public class Sandia_DDn_Spectrometer_GetLost_Design extends MCNP_Deck{
 
     // ********************
     // Detector dimensions
     // ********************
 
-    private boolean tubeModelled         = true;
+    private boolean frameModeled = true;
+
+    private Double fieldingDistance            = 30.0;              // Distance of the CH foil to TCC (cm)
+    private Double initialFrameWidth = 16.0;
+    private Double finalFrameWidth = 50.0;
+    private Double frameHeight                  = 16.0;
+    private Double frameThickness = 0.25 * 2.54;      // Thickness of the tube surrounding the detector (cm)
+
+
     private boolean neutronShieldModeled = true;
-    private boolean detectorModeled      = false;
 
-
-    private Double detectorBlastShieldThickness = 0.25 * 2.54;      // Thickness of the plates between TCC and the detector (cm)
-    private Double detectorTubeThickess         = 0.25 * 2.54;      // Thickness of the tube surrounding the detector (cm)
-
-
-    private Double neutronShieldingThickness = 40.0;                // Thickness of the neutron shielding plug (cm)
+    private Double neutronShieldingThickness = 20.0;                // Thickness of the neutron shielding plug (cm)
     private Double neutronShieldingDiameter  =  5.0;                // Diameter of the neutron shielding plug (cm)
 
 
-    private Double fieldingDistance   = 30.0;                       // Distance of the CH foil to TCC (cm)
-    private Double separationDistance = 25.0;                       // Distance between the CH foil and detector (cm)
+    private boolean tubeModelled         = true;
+
+    private Double detectorTubeThickness = 0.25 * 2.54;      // Thickness of the tube surrounding the detector (cm)
+    private Double detectorTubeSeparationDistance = 20.0;              // Distance between the CH foil and the inner tube (cm)
 
 
     private Double pitchDistance   =  6.0;                          // Distance of the foil "center" to detector center (cm)
@@ -39,8 +43,11 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
     private Double chFoilThickness = 25.0 * 1e-4;                   // Thickness of the CH foil (cm)
 
 
+    private boolean detectorModeled      = false;
+
     private Double detectorDiameter  = 4.5;                         // Diameter of the detector (cm)
     private Double detectorThickness = 1500 * 1e-4;                 // Thickness of the detector (cm)
+    private Double detectorSeparationDistance  = 25.0;              // Distance between the CH foil and detector (cm)
 
 
 
@@ -75,6 +82,7 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
     // Materials
     // **********
 
+    private MCNP_Material frameMaterial         = Material_Library.aluminum("70c");
     private MCNP_Material tubeMaterial          = MCNP_Material.aluminum("70c");
     private MCNP_Material neutronShieldMaterial = MCNP_Material.ch2("70c");
     private MCNP_Material conversionMaterial    = MCNP_Material.ch2("70c");
@@ -122,20 +130,22 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
     private static void testTubeEffects() throws Exception {
 
         // Build the deck
-        Sandia_DDn_Shielded_Annular_Foil_Spectrometer spectrometer = new Sandia_DDn_Shielded_Annular_Foil_Spectrometer(
+        Sandia_DDn_Spectrometer_GetLost_Design spectrometer = new Sandia_DDn_Spectrometer_GetLost_Design(
                 "Sandia DDn Spectrometer - Shielded Annular Foil");
         spectrometer.setSourceByTemperature(2.0);
-
-
-        // Run the case with no materials
-
-        spectrometer.tubeMaterial = Material_Library.aluminum("70c");
+        spectrometer.frameMaterial = null;//Material_Library.aluminum("70c");
+        spectrometer.tubeMaterial = null;//Material_Library.aluminum("70c");
         spectrometer.buildDeck();
+        //spectrometer.toConsole();
 
-        MCNP_Job job = new MCNP_Job("Tube_Material_Test", spectrometer);
-        System.out.print("Running no material model ... ");
+
+        // Run the job
+        MCNP_Job job = new MCNP_Job("DDn_Spectrometer_Self_Scatter", spectrometer);
+        System.out.print("Running job ... ");
         job.runMPIJob(numNodes, hosts);
         System.out.println("Done!");
+
+
 
     }
 
@@ -151,13 +161,13 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
                 for (double separation : separations) {
 
                     // Build the deck
-                    Sandia_DDn_Shielded_Annular_Foil_Spectrometer spectrometer = new Sandia_DDn_Shielded_Annular_Foil_Spectrometer(
+                    Sandia_DDn_Spectrometer_GetLost_Design spectrometer = new Sandia_DDn_Spectrometer_GetLost_Design(
                             "Sandia DDn Spectrometer - Shielded Annular Foil");
                     spectrometer.neutronShieldingThickness = shieldThickness;
                     spectrometer.chFoilThickness = chThickness * 1e-4;
-                    spectrometer.separationDistance = separation;
+                    spectrometer.detectorSeparationDistance = separation;
                     spectrometer.buildDeck();
-                    
+
                     System.out.printf("Starting %.1f cm shield, %.1f um foil, %.1f cm separation case ...\n", shieldThickness, chThickness, separation);
                     String name = String.format("DDn_Spectrometer_1e8_Voided_Shielded_Annular_Foil_Clean_");
 
@@ -184,7 +194,7 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
     }
 
 
-    public Sandia_DDn_Shielded_Annular_Foil_Spectrometer(String name){
+    public Sandia_DDn_Spectrometer_GetLost_Design(String name){
         super(name);
     }
 
@@ -195,6 +205,7 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
         // Null out some materials as needed before we write the header
         // *************************************************************
 
+        if (!frameModeled)          frameMaterial = null;
         if (!tubeModelled)          tubeMaterial = null;
         if (!neutronShieldModeled)  neutronShieldMaterial = null;
         if (!detectorModeled)       detectorMaterial = null;
@@ -210,22 +221,18 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
 
         this.addParameter("", "");
 
+        this.addParameter("Frame Material", frameMaterial);
         this.addParameter("Fielding Distance (cm)", fieldingDistance);
-        this.addParameter("Seperation Distance (cm)", separationDistance);
+        this.addParameter("Width of the Frame nearest TCC (cm)", initialFrameWidth);
+        this.addParameter("Final Width of the Frame (cm)", finalFrameWidth);
+        this.addParameter("Height of the Frame (cm)", frameHeight);
+        this.addParameter("Thickness of the Frame (cm)", frameThickness);
         this.addParameter("", "");
-
-
-        this.addParameter("Tube Material", tubeMaterial);
-        this.addParameter("Blast Shield Face Thickness (cm)", detectorBlastShieldThickness);
-        this.addParameter("Tube Thickness (cm)", detectorTubeThickess);
-        this.addParameter("", "");
-
 
         this.addParameter("Neutron Shielding Material", neutronShieldMaterial);
         this.addParameter("Neutron Shield Plug Thickness (cm)", neutronShieldingThickness);
         this.addParameter("Neutron Shield Plug Diameter (cm)", neutronShieldingDiameter);
         this.addParameter("", "");
-
 
         this.addParameter("Conversion Foil Material", conversionMaterial);
         this.addParameter("Conversion Foil 'Diameter' (cm)", foilDiameter);
@@ -233,8 +240,13 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
         this.addParameter("Pitch Distance (cm)", pitchDistance);
         this.addParameter("", "");
 
+        this.addParameter("Tube Material", tubeMaterial);
+        this.addParameter("Detector Tube Separation Distance (cm)", detectorTubeSeparationDistance);
+        this.addParameter("Detector Tube Thickness (cm)", detectorTubeThickness);
+        this.addParameter("", "");
 
         this.addParameter("Detector Material", detectorMaterial);
+        this.addParameter("Detector Separation Distance (cm)", detectorSeparationDistance);
         this.addParameter("Detector Diameter (cm)", detectorDiameter);
         this.addParameter("Detector Thickness (um)", detectorThickness * 1e4);
         this.addParameter("", "");
@@ -285,23 +297,65 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
         // **************
 
 
+        // Macro body surfaces
+
+        MCNP_Surface frontFrameOuterBoundary = MCNP_Surface.box("Outer Boundary of the Front Frame",
+                new Vec3d(- frameHeight / 2.0, -initialFrameWidth / 2.0, fieldingDistance),
+                new Vec3d(frameHeight, 0.0, 0.0),
+                new Vec3d(0.0, initialFrameWidth, 0.0),
+                new Vec3d(0.0, 0.0, neutronShieldingThickness + frameThickness * 2)
+        );
+
+        MCNP_Surface frontFrameInnerBoundary = MCNP_Surface.box("Inner Boundary of the Front Frame",
+                new Vec3d(- frameHeight / 2.0 + frameThickness, -initialFrameWidth / 2.0 + frameThickness, fieldingDistance + frameThickness),
+                new Vec3d(frameHeight - 2* frameThickness, 0.0, 0.0),
+                new Vec3d(0.0, initialFrameWidth - 2* frameThickness, 0.0),
+                new Vec3d(0.0, 0.0, neutronShieldingThickness)
+        );
+
+
+        // Handle the "p" surfaces
+        double slope = (finalFrameWidth - initialFrameWidth) / (2 * detectorSeparationDistance);
+        double intercept = initialFrameWidth / 2.0 - slope * (fieldingDistance + neutronShieldingThickness + 2* frameThickness);
+
+        MCNP_Surface frameOuterLeftBoundary = new MCNP_Surface("Left Outer Boundary of the Mid Frame", "p");
+        frameOuterLeftBoundary.addParameter(0.0);
+        frameOuterLeftBoundary.addParameter(1.0);
+        frameOuterLeftBoundary.addParameter(-1.0*slope);
+        frameOuterLeftBoundary.addParameter(intercept);
+
+        MCNP_Surface frameInnerLeftBoundary = new MCNP_Surface("Left Inner Boundary of the Mid Frame", "p");
+        frameInnerLeftBoundary.addParameter(0.0);
+        frameInnerLeftBoundary.addParameter(1.0);
+        frameInnerLeftBoundary.addParameter(-1.0*slope);
+        frameInnerLeftBoundary.addParameter(intercept - frameThickness);
+
+        MCNP_Surface frameOuterRightBoundary = new MCNP_Surface("Right Outer Boundary of the Mid Frame", "p");
+        frameOuterRightBoundary.addParameter(0.0);
+        frameOuterRightBoundary.addParameter(1.0);
+        frameOuterRightBoundary.addParameter(1.0*slope);
+        frameOuterRightBoundary.addParameter(-1.0 * intercept);
+
+        MCNP_Surface frameInnerRightBoundary = new MCNP_Surface("Right Inner Boundary of the Mid Frame", "p");
+        frameInnerRightBoundary.addParameter(0.0);
+        frameInnerRightBoundary.addParameter(1.0);
+        frameInnerRightBoundary.addParameter(1.0*slope);
+        frameInnerRightBoundary.addParameter(-1.0 * intercept + frameThickness);
+
+
+
         // Handle the "pz" surfaces
-        double totalDistance = this.fieldingDistance;
-        MCNP_Surface firstBlastShieldFrontFace = new MCNP_Surface("Front Face of the First Blast Shield", "pz");
-        firstBlastShieldFrontFace.addParameter(totalDistance);
-
-
-        totalDistance += detectorBlastShieldThickness;
-        MCNP_Surface shieldPlugFrontFace = new MCNP_Surface("Front Face of the Shield Plug", "pz");
+        double totalDistance = this.fieldingDistance + frameThickness;
+        MCNP_Surface shieldPlugFrontFace = new MCNP_Surface("Front Face of the Neutron Shield Plug", "pz");
         shieldPlugFrontFace.addParameter(totalDistance);
 
 
         totalDistance += neutronShieldingThickness;
-        MCNP_Surface secondBlastShieldFrontFace = new MCNP_Surface("Front Face of the Second Blast Shield", "pz");
-        secondBlastShieldFrontFace.addParameter(totalDistance);
+        MCNP_Surface shieldPlugBackFace = new MCNP_Surface("Back Face of the Neutron Shield Plug", "pz");
+        shieldPlugBackFace.addParameter(totalDistance);
 
 
-        totalDistance += detectorBlastShieldThickness;
+        totalDistance += frameThickness;
         MCNP_Surface chFoilFrontFace = new MCNP_Surface("Front Face of the CH Foil", "pz");
         chFoilFrontFace.addParameter(totalDistance);
 
@@ -311,7 +365,13 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
         chFoilBackFace.addParameter(totalDistance);
 
 
-        totalDistance += separationDistance;
+        totalDistance += detectorTubeSeparationDistance;
+        MCNP_Surface innerTubeFrontFace = new MCNP_Surface("Inner Tube Front Face", "pz");
+        innerTubeFrontFace.addParameter(totalDistance);
+        totalDistance -= detectorTubeSeparationDistance;
+
+
+        totalDistance += detectorSeparationDistance;
         MCNP_Surface detectorFrontFace = new MCNP_Surface("Front Face of the Detector", "pz");
         detectorFrontFace.addParameter(totalDistance);
 
@@ -320,17 +380,20 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
         MCNP_Surface detectorBackFace = new MCNP_Surface("Back Face of the Detector", "pz");
         detectorBackFace.addParameter(totalDistance);
 
-        totalDistance += separationDistance;
-        MCNP_Surface thirdBlastShieldFrontFace = new MCNP_Surface("Front Face of the Third Blast Shield", "pz");
-        thirdBlastShieldFrontFace.addParameter(totalDistance);
 
-        totalDistance += detectorBlastShieldThickness;
-        MCNP_Surface thirdBlastShieldBackFace = new MCNP_Surface("Back Face of the Third Blast Shield", "pz");
-        thirdBlastShieldBackFace.addParameter(totalDistance);
+        totalDistance += detectorSeparationDistance;
+        MCNP_Surface backFrameInnerBackSurface = new MCNP_Surface("Back Inner Surface of the Back Frame", "pz");
+        backFrameInnerBackSurface.addParameter(totalDistance);
+
+
+        totalDistance += frameThickness;
+        MCNP_Surface backFrameOuterBackSurface = new MCNP_Surface("Back Outer Surface of the Back Frame", "pz");
+        backFrameOuterBackSurface.addParameter(totalDistance);
 
 
         MCNP_Surface outsideWorldBoundary = new MCNP_Surface("Outside World Boundary", "so");
         outsideWorldBoundary.addParameter(2.0*totalDistance);
+
 
 
         // Handle the "px" surfaces
@@ -352,11 +415,55 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
         MCNP_Surface mitlDeckBottomBoundary = new MCNP_Surface("MITL Deck Bottom Boundary", "px");
         mitlDeckBottomBoundary.addParameter((-1.0) * blastShieldHeight / 2.0 - mitlDeckOffset - mitlDeckThickness);
 
+        MCNP_Surface frameOuterTopBoundary = new MCNP_Surface("Outer Top Boundary of the Frame", "px");
+        frameOuterTopBoundary.addParameter( frameHeight / 2.0);
+
+        MCNP_Surface frameInnerTopBoundary = new MCNP_Surface("Inner Top Boundary of the Frame", "px");
+        frameInnerTopBoundary.addParameter( frameHeight / 2.0 - frameThickness);
+
+        MCNP_Surface frameOuterBottomBoundary = new MCNP_Surface("Outer Bottom Boundary of Mid Frame", "px");
+        frameOuterBottomBoundary.addParameter( -1 * frameHeight / 2.0);
+
+        MCNP_Surface frameInnerBottomBoundary = new MCNP_Surface("Inner Bottom Boundary of Mid Frame", "px");
+        frameInnerBottomBoundary.addParameter( -1* frameHeight / 2.0 + frameThickness);
+
+
+
+        // Handle the py surfaces
+        MCNP_Surface backFrameOuterRightBoundary = new MCNP_Surface("Outer Right Boundary of the Back Frame", "py");
+        backFrameOuterRightBoundary.addParameter( finalFrameWidth / 2.0);
+
+        MCNP_Surface backFrameInnerRightBoundary = new MCNP_Surface("Inner  Right Boundary of the Back Frame", "py");
+        backFrameInnerRightBoundary.addParameter( finalFrameWidth / 2.0 - frameThickness);
+
+        MCNP_Surface backFrameOuterLeftBoundary = new MCNP_Surface("Outer Left Boundary of the Back Frame", "py");
+        backFrameOuterLeftBoundary.addParameter( -1 * finalFrameWidth / 2.0);
+
+        MCNP_Surface backFrameInnerLeftBoundary = new MCNP_Surface("Outer Left Boundary of the Back Frame", "py");
+        backFrameInnerLeftBoundary.addParameter( -1 * finalFrameWidth / 2.0 + frameThickness);
+
+
 
         // Handle the "cz" surfaces
 
-        MCNP_Surface tubeOuterSurface = new MCNP_Surface("Outer Surface of the Al Tube", "cz");
-        tubeOuterSurface.addParameter(pitchDistance / 2.0 + foilDiameter + detectorTubeThickess);
+        double diameter = (2*pitchDistance + foilDiameter) / (fieldingDistance + neutronShieldingThickness + 2*frameThickness);
+        diameter *= (fieldingDistance + neutronShieldingThickness + detectorTubeSeparationDistance + 2*frameThickness);
+        MCNP_Surface primaryTubeOuterSurface = new MCNP_Surface("Outer Surface of the Primary Al Tube", "cz");
+        primaryTubeOuterSurface.addParameter(diameter / 2.0);
+
+        diameter -= detectorTubeThickness * 2;
+        MCNP_Surface primaryTubeInnerSurface = new MCNP_Surface("Inner Surface of the Primary Al Tube", "cz");
+        primaryTubeInnerSurface.addParameter(diameter / 2.0);
+
+
+        diameter = 2*pitchDistance + foilDiameter;
+        diameter -= (2*pitchDistance + foilDiameter - detectorDiameter) * (detectorTubeSeparationDistance / detectorSeparationDistance);
+        MCNP_Surface secondaryTubeInnerSurface = new MCNP_Surface("Inner Surface of the Secondary Al Tube", "cz");
+        secondaryTubeInnerSurface.addParameter(diameter / 2.0);
+
+        diameter += detectorTubeThickness * 2;
+        MCNP_Surface secondaryTubeOuterSurface = new MCNP_Surface("Outer Surface of the Secondary Al Tube", "cz");
+        secondaryTubeOuterSurface.addParameter(diameter / 2.0);
 
 
         MCNP_Surface chFoilOuterSurface = new MCNP_Surface("Outer Surface of the CH Foil", "cz");
@@ -398,9 +505,13 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
 
 
 
-        /**
-         * Cell cards
-         */
+        // ***********
+        // CELL CARDS
+        // ***********
+
+
+        // Scattering sources
+        // *******************
 
         MCNP_Cell spacer = new MCNP_Cell("Spacer", spacerMaterial, 1);
         spacer.addSurface(spacerTopBoundary, MCNP_Volume.Orientation.NEGATIVE);
@@ -424,25 +535,101 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
         this.addCell(mitlDeck);
 
 
-        MCNP_Cell firstBlastShield = new MCNP_Cell("1st Detector Blast Shield Plate", tubeMaterial, 1);
-        firstBlastShield.addSurface(firstBlastShieldFrontFace , MCNP_Volume.Orientation.POSITIVE);
-        firstBlastShield.addSurface(shieldPlugFrontFace       , MCNP_Volume.Orientation.NEGATIVE);
-        firstBlastShield.addSurface(chFoilOuterSurface        , MCNP_Volume.Orientation.NEGATIVE);
-        this.addCell(firstBlastShield);
+        // Detector frame
+        // **************
+
+        MCNP_Cell frontFrame = new MCNP_Cell("Front Frame", frameMaterial, 1);
+        frontFrame.addSurface(frontFrameOuterBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        frontFrame.addSurface(frontFrameInnerBoundary, MCNP_Volume.Orientation.POSITIVE);
+        this.addCell(frontFrame);
+
+        MCNP_Cell midFrameTopWall = new MCNP_Cell("Mid Frame - Top Wall", frameMaterial, 1);
+        midFrameTopWall.addSurface(frameOuterTopBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        midFrameTopWall.addSurface(frameInnerTopBoundary, MCNP_Volume.Orientation.POSITIVE);
+        midFrameTopWall.addSurface(frameInnerLeftBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        midFrameTopWall.addSurface(frameInnerRightBoundary, MCNP_Volume.Orientation.POSITIVE);
+        midFrameTopWall.addSurface(chFoilFrontFace, MCNP_Volume.Orientation.POSITIVE);
+        midFrameTopWall.addSurface(detectorFrontFace, MCNP_Volume.Orientation.NEGATIVE);
+        this.addCell(midFrameTopWall);
+
+        MCNP_Cell midFrameBottomWall = new MCNP_Cell("Mid Frame - Bottom Wall", frameMaterial, 1);
+        midFrameBottomWall.addSurface(frameOuterBottomBoundary, MCNP_Volume.Orientation.POSITIVE);
+        midFrameBottomWall.addSurface(frameInnerBottomBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        midFrameBottomWall.addSurface(frameInnerLeftBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        midFrameBottomWall.addSurface(frameInnerRightBoundary, MCNP_Volume.Orientation.POSITIVE);
+        midFrameBottomWall.addSurface(chFoilFrontFace, MCNP_Volume.Orientation.POSITIVE);
+        midFrameBottomWall.addSurface(detectorFrontFace, MCNP_Volume.Orientation.NEGATIVE);
+        this.addCell(midFrameBottomWall);
+
+        MCNP_Cell midFrameLeftWall = new MCNP_Cell("Mid Frame - Left Wall", frameMaterial, 1);
+        midFrameLeftWall.addSurface(frameOuterTopBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        midFrameLeftWall.addSurface(frameOuterBottomBoundary, MCNP_Volume.Orientation.POSITIVE);
+        midFrameLeftWall.addSurface(frameOuterLeftBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        midFrameLeftWall.addSurface(frameInnerLeftBoundary, MCNP_Volume.Orientation.POSITIVE);
+        midFrameLeftWall.addSurface(chFoilFrontFace, MCNP_Volume.Orientation.POSITIVE);
+        midFrameLeftWall.addSurface(detectorFrontFace, MCNP_Volume.Orientation.NEGATIVE);
+        this.addCell(midFrameLeftWall);
+
+        MCNP_Cell midFrameRightWall = new MCNP_Cell("Mid Frame - Right Wall", frameMaterial, 1);
+        midFrameRightWall.addSurface(frameOuterTopBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        midFrameRightWall.addSurface(frameOuterBottomBoundary, MCNP_Volume.Orientation.POSITIVE);
+        midFrameRightWall.addSurface(frameOuterRightBoundary, MCNP_Volume.Orientation.POSITIVE);
+        midFrameRightWall.addSurface(frameInnerRightBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        midFrameRightWall.addSurface(chFoilFrontFace, MCNP_Volume.Orientation.POSITIVE);
+        midFrameRightWall.addSurface(detectorFrontFace, MCNP_Volume.Orientation.NEGATIVE);
+        this.addCell(midFrameRightWall);
+
+        MCNP_Cell backFrameTopWall = new MCNP_Cell("Back Frame - Top Wall", frameMaterial, 1);
+        backFrameTopWall.addSurface(frameOuterTopBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        backFrameTopWall.addSurface(frameInnerTopBoundary, MCNP_Volume.Orientation.POSITIVE);
+        backFrameTopWall.addSurface(backFrameInnerLeftBoundary, MCNP_Volume.Orientation.POSITIVE);
+        backFrameTopWall.addSurface(backFrameInnerRightBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        backFrameTopWall.addSurface(detectorFrontFace, MCNP_Volume.Orientation.POSITIVE);
+        backFrameTopWall.addSurface(backFrameInnerBackSurface, MCNP_Volume.Orientation.NEGATIVE);
+        this.addCell(backFrameTopWall);
+
+        MCNP_Cell backFrameBottomWall = new MCNP_Cell("Back Frame - Bottom Wall", frameMaterial, 1);
+        backFrameBottomWall.addSurface(frameOuterBottomBoundary, MCNP_Volume.Orientation.POSITIVE);
+        backFrameBottomWall.addSurface(frameInnerBottomBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        backFrameBottomWall.addSurface(backFrameInnerLeftBoundary, MCNP_Volume.Orientation.POSITIVE);
+        backFrameBottomWall.addSurface(backFrameInnerRightBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        backFrameBottomWall.addSurface(detectorFrontFace, MCNP_Volume.Orientation.POSITIVE);
+        backFrameBottomWall.addSurface(backFrameInnerBackSurface, MCNP_Volume.Orientation.NEGATIVE);
+        this.addCell(backFrameBottomWall);
+
+        MCNP_Cell backFrameLeftWall = new MCNP_Cell("Back Frame - Left Wall", frameMaterial, 1);
+        backFrameLeftWall.addSurface(frameOuterTopBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        backFrameLeftWall.addSurface(frameOuterBottomBoundary, MCNP_Volume.Orientation.POSITIVE);
+        backFrameLeftWall.addSurface(backFrameOuterLeftBoundary, MCNP_Volume.Orientation.POSITIVE);
+        backFrameLeftWall.addSurface(backFrameInnerLeftBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        backFrameLeftWall.addSurface(detectorFrontFace, MCNP_Volume.Orientation.POSITIVE);
+        backFrameLeftWall.addSurface(backFrameInnerBackSurface, MCNP_Volume.Orientation.NEGATIVE);
+        this.addCell(backFrameLeftWall);
+
+        MCNP_Cell backFrameRightWall = new MCNP_Cell("Back Frame - Right Wall", frameMaterial, 1);
+        backFrameRightWall.addSurface(frameOuterTopBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        backFrameRightWall.addSurface(frameOuterBottomBoundary, MCNP_Volume.Orientation.POSITIVE);
+        backFrameRightWall.addSurface(backFrameOuterRightBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        backFrameRightWall.addSurface(backFrameInnerRightBoundary, MCNP_Volume.Orientation.POSITIVE);
+        backFrameRightWall.addSurface(detectorFrontFace, MCNP_Volume.Orientation.POSITIVE);
+        backFrameRightWall.addSurface(backFrameInnerBackSurface, MCNP_Volume.Orientation.NEGATIVE);
+        this.addCell(backFrameRightWall);
+
+        MCNP_Cell backFrameBackWall = new MCNP_Cell("Back Frame - Back Wall", frameMaterial, 1);
+        backFrameBackWall.addSurface(frameOuterTopBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        backFrameBackWall.addSurface(frameOuterBottomBoundary, MCNP_Volume.Orientation.POSITIVE);
+        backFrameBackWall.addSurface(backFrameOuterLeftBoundary, MCNP_Volume.Orientation.POSITIVE);
+        backFrameBackWall.addSurface(backFrameOuterRightBoundary, MCNP_Volume.Orientation.NEGATIVE);
+        backFrameBackWall.addSurface(backFrameInnerBackSurface, MCNP_Volume.Orientation.POSITIVE);
+        backFrameBackWall.addSurface(backFrameOuterBackSurface, MCNP_Volume.Orientation.NEGATIVE);
+        this.addCell(backFrameBackWall);
 
 
         MCNP_Cell shieldPlug = new MCNP_Cell("Neutron Shield Plug", neutronShieldMaterial, 1);
         shieldPlug.addSurface(shieldPlugFrontFace        , MCNP_Volume.Orientation.POSITIVE);
-        shieldPlug.addSurface(secondBlastShieldFrontFace , MCNP_Volume.Orientation.NEGATIVE);
+        shieldPlug.addSurface(shieldPlugBackFace , MCNP_Volume.Orientation.NEGATIVE);
         shieldPlug.addSurface(shieldPlugOuterSurface    , MCNP_Volume.Orientation.NEGATIVE);
         this.addCell(shieldPlug);
-
-
-        MCNP_Cell secondBlastShield = new MCNP_Cell("2nd Detector Blast Shield Plate", tubeMaterial, 1);
-        secondBlastShield.addSurface(secondBlastShieldFrontFace , MCNP_Volume.Orientation.POSITIVE);
-        secondBlastShield.addSurface(chFoilFrontFace       , MCNP_Volume.Orientation.NEGATIVE);
-        secondBlastShield.addSurface(chFoilOuterSurface        , MCNP_Volume.Orientation.NEGATIVE);
-        this.addCell(secondBlastShield);
 
 
         MCNP_Cell chFoil = new MCNP_Cell("Conversion Foil", conversionMaterial, 1);
@@ -460,18 +647,13 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
         detector.addSurface(detectorOuterSurface, MCNP_Volume.Orientation.NEGATIVE);
         this.addCell(detector);
 
-        MCNP_Cell thirdBlastShield = new MCNP_Cell("3rd Detector Blast Shield Plate", tubeMaterial, 1);
-        thirdBlastShield.addSurface(thirdBlastShieldFrontFace , MCNP_Volume.Orientation.POSITIVE);
-        thirdBlastShield.addSurface(thirdBlastShieldBackFace       , MCNP_Volume.Orientation.NEGATIVE);
-        thirdBlastShield.addSurface(chFoilOuterSurface        , MCNP_Volume.Orientation.NEGATIVE);
-        this.addCell(thirdBlastShield);
 
-        MCNP_Cell tube = new MCNP_Cell("Containing Tube", tubeMaterial, 1);
-        tube.addSurface(tubeOuterSurface, MCNP_Volume.Orientation.NEGATIVE);
-        tube.addSurface(chFoilOuterSurface, MCNP_Volume.Orientation.POSITIVE);
-        tube.addSurface(firstBlastShieldFrontFace, MCNP_Volume.Orientation.POSITIVE);
-        tube.addSurface(thirdBlastShieldBackFace, MCNP_Volume.Orientation.NEGATIVE);
-        this.addCell(tube);
+        MCNP_Cell secondaryTube = new MCNP_Cell("Secondary Tube", tubeMaterial, 1);
+        secondaryTube.addSurface(secondaryTubeOuterSurface, MCNP_Volume.Orientation.NEGATIVE);
+        secondaryTube.addSurface(secondaryTubeInnerSurface, MCNP_Volume.Orientation.POSITIVE);
+        secondaryTube.addSurface(innerTubeFrontFace, MCNP_Volume.Orientation.POSITIVE);
+        secondaryTube.addSurface(backFrameInnerBackSurface, MCNP_Volume.Orientation.NEGATIVE);
+        this.addCell(secondaryTube);
 
 
         MCNP_Cell outsideWorld = new MCNP_Cell("Outside World", 0);
@@ -485,29 +667,38 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
 
 
         MCNP_Tally protonSignalTally = new MCNP_Tally("Proton Distribution at CR-39 Front Surface",
-                MCNP_Tally.TallyType.SURFACE_AVERAGED_FLUX, MCNP_Particle.proton());
-        protonSignalTally.addTallyLocation(detectorFrontFace);
+                MCNP_Tally.TallyType.CELL_AVERAGED_FLUX, MCNP_Particle.proton());
+        protonSignalTally.addTallyLocation(detector);
+
 
         MCNP_Tally neutronBackgroundTally = new MCNP_Tally("Neutron Distribution at CR-39 Front Surface",
-                MCNP_Tally.TallyType.SURFACE_AVERAGED_FLUX, MCNP_Particle.neutron());
-        neutronBackgroundTally.addTallyLocation(detectorFrontFace);
+                MCNP_Tally.TallyType.CELL_AVERAGED_FLUX, MCNP_Particle.neutron());
+        neutronBackgroundTally.addTallyLocation(detector);
 
-        MCNP_Tally neutronsBeforeShieldingTally = new MCNP_Tally("Neutron Distribution Before Shielding",
-                MCNP_Tally.TallyType.SURFACE_AVERAGED_FLUX, MCNP_Particle.neutron());
-        neutronsBeforeShieldingTally.addTallyLocation(firstBlastShieldFrontFace);
+        MCNP_Tally neutronSourceTally = new MCNP_Tally("Neutron Source Tally",
+                MCNP_Tally.TallyType.SURFACE_INTEGRATED_CURRENT, MCNP_Particle.neutron());
+        neutronSourceTally.addTallyLocation(spacerInnerSurface);
+
 
         Double energyBin = 0.0;
         while(energyBin <= this.maxEnergyBound){
             protonSignalTally.addEnergyBin(energyBin);
             neutronBackgroundTally.addEnergyBin(energyBin);
-            neutronsBeforeShieldingTally.addEnergyBin(energyBin);
+            neutronSourceTally.addEnergyBin(energyBin);
             energyBin += this.energyBinWidth;
         }
 
 
         this.addTally(protonSignalTally);
         this.addTally(neutronBackgroundTally);
-        this.addTally(neutronsBeforeShieldingTally);
+        this.addTally(neutronSourceTally);
+        
+
+        MCNP_MeshTally neutronMeshTally = new MCNP_MeshTally("Neutron Mesh Tally", MCNP_MeshTally.CoordinateSystem.CARTESIAN, MCNP_Particle.neutron());
+        neutronMeshTally.setCoordinateA_Bins(-1.0, 1.0, 2);
+        neutronMeshTally.setCoordinateB_Bins(-finalFrameWidth, finalFrameWidth, 201);
+        neutronMeshTally.setCoordinateC_Bins(0.0, totalDistance, 401);
+        this.addMeshTally(neutronMeshTally);
 
 
         /**
@@ -606,8 +797,21 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
 
     private MCNP_Distribution getDirectionalDistribution(){
 
-        Double l = fieldingDistance;
-        Double r = pitchDistance / 2.0 + foilDiameter;
+        // Depending on the geometry, what we base the solid angle on can change
+        double l1 = fieldingDistance;
+        double l2 = fieldingDistance + detectorSeparationDistance + 2*frameThickness;
+
+        double r1 = 0.5*Math.sqrt(frameHeight*frameHeight + initialFrameWidth*initialFrameWidth);
+        double r2 = 0.5*Math.sqrt(frameHeight*frameHeight + finalFrameWidth*finalFrameWidth);
+
+        double l, r;
+        if ( (r1 / l1 ) > (r2 / l2)){
+            l = l1;
+            r = r1;
+        }else{
+            l = l2;
+            r = r2;
+        }
 
         Double mu = 1 / (Math.sqrt(Math.pow(r/l,2)+1));
         mu = Math.min(mu, 0.999999);
