@@ -44,7 +44,19 @@ public class MCNP_Job extends MCNP_Object {
 
     }
 
-    public void runMPIJob(Integer nodes) throws Exception{
+    public void plotGeometry() throws Exception {
+
+        inputFile.createNewFile();
+        FileWriter writer = new FileWriter(inputFile);
+        writer.write(deck.toString());
+        writer.close();
+
+        String command = "mcnp6 ip i = " + inputFile.getPath();
+        Process p = Runtime.getRuntime().exec(command);
+
+    }
+
+    public void runMPIJob(Integer nodes, boolean verbose) throws Exception{
         String command = new String();
 
         if(System.getProperty("os.name").toLowerCase().contains("windows")){
@@ -56,22 +68,22 @@ public class MCNP_Job extends MCNP_Object {
         command += nodes.toString() + " ";
 
         command += "/MCNP/mcnpx";
-        runJob(command);
+        runJob(command, verbose);
     }
 
-    public void runMPIJob(Integer nodes, String ... hosts) throws Exception{
+    public void runMPIJob(Integer nodes, boolean verbose, String ... hosts) throws Exception{
         String command = new String();
 
         if(System.getProperty("os.name").toLowerCase().contains("windows")){
             command += "mpiexec -np ";
         }else {
-            command += "mpirun -np ";
+            command += "mpirun --oversubscribe -x PATH -x DATAPATH -np ";
         }
 
         command += nodes.toString() + " ";
 
         if (hosts.length > 0){
-            command += "-display-map -H ";
+            command += "-H ";
 
             boolean first = true;
             for (String host : hosts){
@@ -83,15 +95,15 @@ public class MCNP_Job extends MCNP_Object {
             command += " ";
         }
 
-        command += "/MCNP/mcnp6";
-        runJob(command);
+        command += "mcnp6.mpi";
+        runJob(command, verbose);
     }
 
     public void runMCNPXJob() throws Exception{
-        runJob("mcnpx");
+        runJob("mcnpx", false);
     }
 
-    private void runJob(String command) throws Exception{
+    private void runJob(String command, boolean verbose) throws Exception{
 
         inputFile.createNewFile();
         FileWriter writer = new FileWriter(inputFile);
@@ -109,8 +121,8 @@ public class MCNP_Job extends MCNP_Object {
 
         long startTime = System.currentTimeMillis();
         Process p = Runtime.getRuntime().exec(command);
-        p.waitFor();
 
+        if (verbose)    System.out.print(command + "\n");
         writer.write(command + "\n");
 
         BufferedReader stdInput = new BufferedReader(new
@@ -124,7 +136,9 @@ public class MCNP_Job extends MCNP_Object {
                 break;
             }
 
+            if (verbose)    System.out.print(s + "\n");
             writer.write(s + '\n');
+
         }while(!s.contains("mcrun  is done"));
 
         executionTime = System.currentTimeMillis() - startTime;
@@ -133,26 +147,39 @@ public class MCNP_Job extends MCNP_Object {
         String finalFilename = storageDir.getAbsolutePath() + "/" + name + "/" + name + "_" + System.currentTimeMillis();
         new File(storageDir, name).mkdir();
 
-        File tempFile = new File(finalFilename + ".input");
-        while(!inputFile.renameTo(tempFile)){
-        }
-        inputFile = tempFile;
+        File tempFile = null;
 
-        tempFile = new File(finalFilename + ".output");
-        while(!outputFile.renameTo(tempFile)){
-        }
-        outputFile = tempFile;
-
-        while(!runFile.delete()){
+        if (inputFile.exists()) {
+            tempFile = new File(finalFilename + ".input");
+            while (!inputFile.renameTo(tempFile)) {
+            }
+            inputFile = tempFile;
         }
 
-        tempFile = new File(finalFilename + ".mdata");
-        while(!mDataFile.renameTo(tempFile)){
+        if (outputFile.exists()) {
+            tempFile = new File(finalFilename + ".output");
+            while (!outputFile.renameTo(tempFile)) {
+            }
+            outputFile = tempFile;
         }
 
-        tempFile = new File(finalFilename + ".log");
-        while(!logFile.renameTo(new File(finalFilename + ".log"))){
+        if (runFile.exists()) {
+            while (!runFile.delete()) {
+            }
         }
-        logFile = tempFile;
+
+        if (mDataFile.exists()) {
+            tempFile = new File(finalFilename + ".mdata");
+            while (!mDataFile.renameTo(tempFile)) {
+            }
+            mDataFile = tempFile;
+        }
+
+        if (logFile.exists()) {
+            tempFile = new File(finalFilename + ".log");
+            while (!logFile.renameTo(new File(finalFilename + ".log"))) {
+            }
+            logFile = tempFile;
+        }
     }
 }

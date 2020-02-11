@@ -96,7 +96,8 @@ public class Sandia_DDn_Spectrometer extends MCNP_Deck{
 
         System.out.print("Running Al case ... ");
         job = new MCNP_Job("DDn_Spectrometer_Material_Test", spectrometer);
-        job.runMPIJob(numNodes, hosts);
+        job.plotGeometry();
+        //job.runMPIJob(numNodes, false, hosts);
         System.out.println("Done!");
 
     }
@@ -123,7 +124,7 @@ public class Sandia_DDn_Spectrometer extends MCNP_Deck{
                 spectrometer.setSourceByFile();
                 MCNP_Job job = new MCNP_Job("DDn_Spectrometer_Clean_Liner", spectrometer);
                 System.out.print("  -> Running liner case ... ");
-                job.runMPIJob(numNodes, hosts);
+                job.runMPIJob(numNodes, false, hosts);
                 System.out.println("Done!");
 
 
@@ -131,7 +132,7 @@ public class Sandia_DDn_Spectrometer extends MCNP_Deck{
                 spectrometer.setSourceByTemperature(2.0);
                 job = new MCNP_Job("DDn_Spectrometer_Clean_NoLiner", spectrometer);
                 System.out.print("  -> Running no-liner case ... ");
-                job.runMPIJob(numNodes, hosts);
+                job.runMPIJob(numNodes, false, hosts);
                 System.out.println("Done!");
 
             }

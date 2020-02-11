@@ -136,13 +136,14 @@ public class Sandia_DDn_Spectrometer_GetLost_Design extends MCNP_Deck{
         spectrometer.frameMaterial = null;//Material_Library.aluminum("70c");
         spectrometer.tubeMaterial = null;//Material_Library.aluminum("70c");
         spectrometer.buildDeck();
-        //spectrometer.toConsole();
+        spectrometer.toConsole();
 
 
         // Run the job
         MCNP_Job job = new MCNP_Job("DDn_Spectrometer_Self_Scatter", spectrometer);
         System.out.print("Running job ... ");
-        job.runMPIJob(numNodes, hosts);
+        job.plotGeometry();
+        //job.runMPIJob(numNodes, false, hosts);
         System.out.println("Done!");
 
 
@@ -177,7 +178,7 @@ public class Sandia_DDn_Spectrometer_GetLost_Design extends MCNP_Deck{
                     System.out.println(spectrometer);
                     MCNP_Job job = new MCNP_Job(name + "Liner", spectrometer);
                     System.out.print("  -> Running liner case ... ");
-                    job.runMPIJob(numNodes, hosts);
+                    job.runMPIJob(numNodes, false, hosts);
                     System.out.println("Done!");
 
 
@@ -185,7 +186,7 @@ public class Sandia_DDn_Spectrometer_GetLost_Design extends MCNP_Deck{
                     spectrometer.setSourceByTemperature(2.0);
                     job = new MCNP_Job(name + "NoLiner", spectrometer);
                     System.out.print("  -> Running no-liner case ... ");
-                    job.runMPIJob(numNodes, hosts);
+                    job.runMPIJob(numNodes, false, hosts);
                     System.out.println("Done!");
 
                 }

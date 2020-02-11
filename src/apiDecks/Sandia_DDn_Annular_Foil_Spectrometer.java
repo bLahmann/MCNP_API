@@ -87,7 +87,7 @@ public class Sandia_DDn_Annular_Foil_Spectrometer extends MCNP_Deck{
                 spectrometer.setSourceByFile();
                 MCNP_Job job = new MCNP_Job("DDn_Spectrometer_1e8_Annular_Foil_Pitch_8.0_Clean_Liner", spectrometer);
                 System.out.print("  -> Running liner case ... ");
-                job.runMPIJob(numNodes, hosts);
+                job.runMPIJob(numNodes, false, hosts);
                 System.out.println("Done!");
 
 
@@ -95,7 +95,7 @@ public class Sandia_DDn_Annular_Foil_Spectrometer extends MCNP_Deck{
                 spectrometer.setSourceByTemperature(2.0);
                 job = new MCNP_Job("DDn_Spectrometer_1e8_Annular_Foil_Pitch_8.0_Clean_NoLiner", spectrometer);
                 System.out.print("  -> Running no-liner case ... ");
-                job.runMPIJob(numNodes, hosts);
+                job.runMPIJob(numNodes, false, hosts);
                 System.out.println("Done!");
 
             }

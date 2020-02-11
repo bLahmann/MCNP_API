@@ -119,7 +119,7 @@ public class ChargedParticleTransmissionSimulation extends MCNP_Deck{
 
             String jobName = String.format("%s_in_%s", sourceParticle.getName(), filterMaterial.getName());
             MCNP_Job job = new MCNP_Job(jobName, simulation);
-            job.runMPIJob(numNodes, hosts);
+            job.runMPIJob(numNodes, false, hosts);
 
             parseOutputFile(job.outputFile);
 

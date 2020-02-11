@@ -25,10 +25,10 @@ public class MCNP_Tally extends MCNP_Object {
     private String name;
     private Integer id;
     private MCNP_Particle particle;
-    private TallyType tallyType;
+    TallyType tallyType;
     private Double multiplier = 1.0;
 
-    private Vector<MCNP_Object> tallyLocations;
+    Vector<MCNP_Object> tallyLocations;
     private Vector<Double> energyBins;
     private Vector<Double> timeBins;
     private Vector<Double> cosineBins;
@@ -87,6 +87,10 @@ public class MCNP_Tally extends MCNP_Object {
 
     public void setCosineBins(Vector<Double> cosineBins) {
         this.cosineBins = cosineBins;
+    }
+
+    public TallyType getTallyType() {
+        return tallyType;
     }
 
     public String toString(){

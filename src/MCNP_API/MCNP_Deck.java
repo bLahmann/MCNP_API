@@ -1,8 +1,6 @@
 package MCNP_API;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * Created by lahmann on 06/04/2015.
@@ -142,6 +140,7 @@ public class MCNP_Deck extends MCNP_Object {
         lines.add(MCNP_API_Utilities.commentLine);
         lines.add("C ");
 
+        surfaces.sort(Comparator.comparingInt(MCNP_Surface::getID));
         for(MCNP_Surface surface : surfaces){
             lines.add(surface.toString());
         }
@@ -158,12 +157,13 @@ public class MCNP_Deck extends MCNP_Object {
             modeCard += particle.getId() + " ";
         }
         lines.add(modeCard);
-        lines.add("NPS  " + String.format("%.4e", Math.floor(numberOfParticles)));
-        lines.add("PRDMP " + String.format("%.4e", Math.floor(numberOfParticles)) + " " +
-                String.format("%.4e", Math.floor(numberOfParticles)) + " " +
-                String.format("%.4e", 0.0) + " " +
-                String.format("%.4e", 0.0) + " " +
-                String.format("%.4e", Math.floor(numberOfParticles)));
+        lines.add("NPS  " + String.format("%.4e", 1.0*numberOfParticles));
+
+        lines.add("PRDMP " + String.format("%.4e", 1.0*numberOfParticles) + " " +       // ndp (# of histories till we write to output)
+                String.format("%.4e", 0.2*numberOfParticles) + " " +                    // ndm (# of histories till we write to runtpe)
+                String.format("%.4e", 0.0) + " " +                                      // mct TODO: turn mctal on if mesh tally
+                String.format("%.4e", 5.0) + " " +                                      // ndmp (Max cycles to store on the runtpe)
+                String.format("%.4e", 1.0*numberOfParticles));                          // dmmp (How often TFC occur / I never use these)
 
         for(MCNP_Particle particle : particlesToSimulate){
             lines.add(particle.getPhysicsCard());

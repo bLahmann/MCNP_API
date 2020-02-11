@@ -134,7 +134,8 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
 
         MCNP_Job job = new MCNP_Job("Tube_Material_Test", spectrometer);
         System.out.print("Running no material model ... ");
-        job.runMPIJob(numNodes, hosts);
+        job.plotGeometry();
+        //job.runMPIJob(numNodes, false, hosts);
         System.out.println("Done!");
 
     }
@@ -167,7 +168,7 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
                     System.out.println(spectrometer);
                     MCNP_Job job = new MCNP_Job(name + "Liner", spectrometer);
                     System.out.print("  -> Running liner case ... ");
-                    job.runMPIJob(numNodes, hosts);
+                    job.runMPIJob(numNodes, false, hosts);
                     System.out.println("Done!");
 
 
@@ -175,7 +176,7 @@ public class Sandia_DDn_Shielded_Annular_Foil_Spectrometer extends MCNP_Deck{
                     spectrometer.setSourceByTemperature(2.0);
                     job = new MCNP_Job(name + "NoLiner", spectrometer);
                     System.out.print("  -> Running no-liner case ... ");
-                    job.runMPIJob(numNodes, hosts);
+                    job.runMPIJob(numNodes, false, hosts);
                     System.out.println("Done!");
 
                 }
