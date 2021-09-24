@@ -40,10 +40,39 @@ public class StepRangeFilter extends MCNP_Deck{
     public int numParticles = (int) 1e7;                                                    // Expected 3He3He yield
 
     public double sourceMeanEnergy = 3.0;                                                   // Mean energy of the source (MeV)
-    public double sourceSigma      = 60;                                                    // Sigma of the source (keV)
+    public double sourceSigma      = 0.00001;                                               // Sigma of the source (keV)
+
+    // Computation Parameters
+    private final static String[] hosts = {             // Computer hosts to use
+            "ben-local",
+            "chewie-local",
+            "luke-local",
+            "han-local"
+    };
+    private final static Integer[] numNodes = {         // Number of nodes to use (max 192)
+            46,
+            46,
+            46,
+            46
+    };
 
 
     public static void main(String ... args) throws Exception{
+        double[] energies = MCNP_API_Utilities.linspace(4.5, 10.5, 1.0);
+        for (double energy : energies) {
+
+            System.out.print(String.format("Running %.2f case ...", energy));
+
+            StepRangeFilter srf = new StepRangeFilter("Straggle Calculation");
+            srf.sourceMeanEnergy = energy;
+            srf.buildDeck();
+
+            MCNP_Job job = new MCNP_Job("SRF_3He3He_Straggling_Calculations", srf);
+            job.runMPIJob(hosts, numNodes, false);
+            parseOutput(job.outputFile);
+
+            System.out.println("Done!");
+        }
 
     }
 
@@ -51,7 +80,7 @@ public class StepRangeFilter extends MCNP_Deck{
         super(name);
     }
 
-    public void buildDeck(Integer numNodes, String ... hosts) throws Exception{
+    public void buildDeck() throws Exception{
 
         /**
          * Add parameters to the header file
@@ -82,18 +111,11 @@ public class StepRangeFilter extends MCNP_Deck{
 
         this.addParameter("Source Mean Energy (MeV)", sourceMeanEnergy);
         this.addParameter("Source Sigma (keV)", sourceSigma);
-
-        String hostList = "";
-        boolean first = true;
-        for (String host : hosts){
-            if (!first) hostList += ", ";
-            hostList += host;
-            first = false;
-        }
-
         this.addParameter("", "");
-        this.addParameter("Hosts", hostList);
-        this.addParameter("Num CPUs", numNodes);
+
+        for (int i = 0; i < hosts.length; i++) {
+            this.addParameter("Nodes used on " + hosts[i], numNodes[i]);
+        }
         this.addParameter("Num Particles", String.format("%.2e", 1.0*numParticles));
 
 
@@ -344,10 +366,13 @@ public class StepRangeFilter extends MCNP_Deck{
          * Options / Physics Cards
          */
 
+        //this.addParticleToSimulate(MCNP_Particle.proton());
+        //MCNP_Source source = new MCNP_Source("", MCNP_Particle.proton());
+
         this.addParticleToSimulate(MCNP_Particle.proton());
         MCNP_Source source = new MCNP_Source("", MCNP_Particle.proton());
-        source.setDirectionalDistribution(getDirectionalDistribution());
 
+        source.setDirectionalDistribution(getDirectionalDistribution());
         source.setEnergyDistribution(getGaussianSpectrum(sourceMeanEnergy, sourceSigma));
         //source.setEnergyDistribution(get3He3HeEnergyDistribution());
 
@@ -390,7 +415,7 @@ public class StepRangeFilter extends MCNP_Deck{
     private MCNP_Distribution getGaussianSpectrum(double mu, double sigma) {
 
         NormalDistribution normalDistribution = new NormalDistribution(mu, sigma);
-        double[] energyNodes = MCNP_API_Utilities.linspace(0, 5, 0.1);
+        double[] energyNodes = MCNP_API_Utilities.linspace(0, 15, 0.1);
 
         MCNP_Distribution energyDist = new MCNP_Distribution();
         Vector<Double> nodes = new Vector<>(energyNodes.length);

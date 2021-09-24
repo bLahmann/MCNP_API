@@ -1,10 +1,8 @@
 import MCNP_API.MCNP_API_Utilities;
 import PlottingAPI.Figure;
 import PlottingAPI.LineProperties;
-import org.apache.commons.math3.analysis.interpolation.BicubicInterpolatingFunction;
         import org.apache.commons.math3.analysis.interpolation.SplineInterpolator;
         import org.apache.commons.math3.analysis.polynomials.PolynomialSplineFunction;
-import org.omg.CORBA.PUBLIC_MEMBER;
 
 import java.awt.*;
 

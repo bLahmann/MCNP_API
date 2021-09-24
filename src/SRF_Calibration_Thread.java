@@ -3,7 +3,6 @@ import PlottingAPI.Figure;
 import PlottingAPI.LineProperties;
 import cStopPow.StopPow;
 import cStopPow.StopPow_SRIM;
-import com.sun.org.apache.xerces.internal.xni.parser.XMLConfigurationException;
 import org.apache.commons.math3.analysis.interpolation.LinearInterpolator;
 import org.apache.commons.math3.analysis.polynomials.PolynomialSplineFunction;
 import org.apache.commons.math3.exception.OutOfRangeException;

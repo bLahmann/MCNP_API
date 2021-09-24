@@ -16,7 +16,7 @@ public class MCNP_Job extends MCNP_Object {
     private static final File runningDir = new File("runningDir");
 
     private String name;
-    public File inputFile, outputFile, runFile, logFile, mDataFile, mcTalFile;
+    public File inputFile, outputFile, runFile, logFile, mDataFile, mctalFile, meshtalFile, hostFile;
     public Long executionTime = new Long(-1);
     private MCNP_Deck deck;
 
@@ -41,6 +41,9 @@ public class MCNP_Job extends MCNP_Object {
         runFile = new File(tempFilename + ".run");
         logFile = new File(tempFilename + ".log");
         mDataFile = new File(tempFilename + ".mdata");
+        mctalFile = new File(tempFilename + ".mctal");
+        meshtalFile = new File(tempFilename + ".meshtal");
+        hostFile = new File(tempFilename + ".hostfile");
 
     }
 
@@ -71,32 +74,32 @@ public class MCNP_Job extends MCNP_Object {
         runJob(command, verbose);
     }
 
-    public void runMPIJob(Integer nodes, boolean verbose, String ... hosts) throws Exception{
-        String command = new String();
+    public void runMPIJob(String[] hosts, Integer[] nodes, boolean verbose) throws Exception{
 
+        // Create the host file
+        FileWriter w = new FileWriter(hostFile);
+        int totalNodes = 0;
+        for (int i = 0; i < hosts.length; i++){
+            if (nodes[i] > 0) {
+                w.write(String.format("%s max_slots=%d\n", hosts[i], nodes[i]));
+                totalNodes += nodes[i];
+            }
+        }
+        w.close();
+
+
+        String command = new String();
         if(System.getProperty("os.name").toLowerCase().contains("windows")){
             command += "mpiexec -np ";
         }else {
-            command += "mpirun --oversubscribe -x PATH -x DATAPATH -np ";
+            command += "mpirun --oversubscribe -x PATH -x DATAPATH --hostfile ";
+            command += hostFile.getPath() + " -np ";
+            command += totalNodes + " ";
+            command += "mcnp6.mpi";
         }
 
-        command += nodes.toString() + " ";
-
-        if (hosts.length > 0){
-            command += "-H ";
-
-            boolean first = true;
-            for (String host : hosts){
-                if (!first) command += ",";
-                else first = false;
-
-                command += host;
-            }
-            command += " ";
-        }
-
-        command += "mcnp6.mpi";
         runJob(command, verbose);
+
     }
 
     public void runMCNPXJob() throws Exception{
@@ -118,6 +121,8 @@ public class MCNP_Job extends MCNP_Object {
         command += "o= " + outputFile.getPath() + " ";
         command += "run= " + runFile.getPath() + " ";
         command += "mdata= " + mDataFile.getPath() + " ";
+        command += "mctal= " + mctalFile.getPath() + " ";
+        command += "meshtal= " + meshtalFile.getPath() + " ";
 
         long startTime = System.currentTimeMillis();
         Process p = Runtime.getRuntime().exec(command);
@@ -175,11 +180,30 @@ public class MCNP_Job extends MCNP_Object {
             mDataFile = tempFile;
         }
 
+        if (mctalFile.exists()) {
+            tempFile = new File(finalFilename + ".mctal");
+            while (!mctalFile.renameTo(tempFile)) {
+            }
+            mctalFile = tempFile;
+        }
+
+        if (meshtalFile.exists()) {
+            tempFile = new File(finalFilename + ".meshtal");
+            while (!meshtalFile.renameTo(tempFile)) {
+            }
+            meshtalFile = tempFile;
+        }
+
         if (logFile.exists()) {
             tempFile = new File(finalFilename + ".log");
             while (!logFile.renameTo(new File(finalFilename + ".log"))) {
             }
             logFile = tempFile;
+        }
+
+        if (hostFile.exists()) {
+            while (!hostFile.delete()) {
+            }
         }
     }
 }

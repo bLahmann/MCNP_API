@@ -41,7 +41,7 @@ public class MCNP_Particle extends MCNP_Object {
 
     public static MCNP_Particle deuteron(){
         MCNP_Particle deuteron = new MCNP_Particle("Deuteron", "d", 1, 2);
-        deuteron.setPhysicsOptions(100.0, "J J J", 0, "J", 1, "J J J", 0.917);
+        deuteron.setPhysicsOptions(100.0, "J J J", 0, "J", 1, 0.65, "J J", 0, 0, 0, 0.917);
         deuteron.setCutoffOptions("J", 0.001);
         return deuteron;
     }

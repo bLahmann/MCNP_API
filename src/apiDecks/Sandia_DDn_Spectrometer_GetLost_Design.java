@@ -178,7 +178,7 @@ public class Sandia_DDn_Spectrometer_GetLost_Design extends MCNP_Deck{
                     System.out.println(spectrometer);
                     MCNP_Job job = new MCNP_Job(name + "Liner", spectrometer);
                     System.out.print("  -> Running liner case ... ");
-                    job.runMPIJob(numNodes, false, hosts);
+                    //job.runMPIJob(numNodes, false, hosts);
                     System.out.println("Done!");
 
 
@@ -186,7 +186,7 @@ public class Sandia_DDn_Spectrometer_GetLost_Design extends MCNP_Deck{
                     spectrometer.setSourceByTemperature(2.0);
                     job = new MCNP_Job(name + "NoLiner", spectrometer);
                     System.out.print("  -> Running no-liner case ... ");
-                    job.runMPIJob(numNodes, false, hosts);
+                    //job.runMPIJob(numNodes, false, hosts);
                     System.out.println("Done!");
 
                 }
@@ -695,11 +695,6 @@ public class Sandia_DDn_Spectrometer_GetLost_Design extends MCNP_Deck{
         this.addTally(neutronSourceTally);
         
 
-        MCNP_MeshTally neutronMeshTally = new MCNP_MeshTally("Neutron Mesh Tally", MCNP_MeshTally.CoordinateSystem.CARTESIAN, MCNP_Particle.neutron());
-        neutronMeshTally.setCoordinateA_Bins(-1.0, 1.0, 2);
-        neutronMeshTally.setCoordinateB_Bins(-finalFrameWidth, finalFrameWidth, 201);
-        neutronMeshTally.setCoordinateC_Bins(0.0, totalDistance, 401);
-        this.addMeshTally(neutronMeshTally);
 
 
         /**

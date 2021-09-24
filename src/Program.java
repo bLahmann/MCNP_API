@@ -187,13 +187,12 @@ public class Program {
         srf.filterThicknesses = filterThicknesses;
         srf.sourceMeanEnergy = mu;
         srf.sourceSigma = sigma;
-        srf.buildDeck(numNodes, hosts);
-        System.out.println(srf);
+        srf.buildDeck();
 
 
         // Run job
         MCNP_Job job = new MCNP_Job(jobName, srf);
-        job.runMPIJob(numNodes, true, hosts);
+        //job.runMPIJob(hosts, numNodes, true);
         return job.outputFile;
 
     }

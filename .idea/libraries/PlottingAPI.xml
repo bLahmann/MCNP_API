@@ -1,7 +1,7 @@
 <component name="libraryTable">
   <library name="PlottingAPI">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../JavaPlottingAPI/bin/PlottingAPI.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../Hobbie Projects/PlottingAPI/bin/PlottingAPI.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

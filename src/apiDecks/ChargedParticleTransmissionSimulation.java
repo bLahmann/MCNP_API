@@ -20,9 +20,6 @@ public class ChargedParticleTransmissionSimulation extends MCNP_Deck{
     // Energy of the source particles (MeV)
     private Double sourceEnergy = 0.0;
 
-    // Number of source particles to simulate
-    private Integer numSourceParticles = (int) 2e5;
-
 
 
     // Material that the particles will be ranged through
@@ -45,17 +42,28 @@ public class ChargedParticleTransmissionSimulation extends MCNP_Deck{
     private Double filterDiameter = 5.0;
 
 
-
     // Energy bin width of the tallies (MeV)
-    private Double energyBinWidth = 25.0 * 1e-3;
+    private Integer numEnergyBins = 201;
 
 
 
-    // List of hosts to be used by this simulation
-    private final static String[] hosts = {"han", "luke", "ben", "chewie"};
+    // List of hosts
+    private final static String[] hosts = {             // Computer hosts to use
+            "ben-local",
+            "chewie-local",
+            "luke-local",
+            "han-local"
+    };
 
-    // Number of CPUs to be used by this simulation
-    private final static Integer  numNodes = 180;                              // Number of nodes to use (max 192)
+    // Number of nodes to be used
+    private final static Integer[] numNodes = {         // Number of nodes to use (max 192)
+            46,
+            46,
+            46,
+            46
+    };
+
+    private final static int numSourceParticles = (int) 2e8;
 
 
 
@@ -66,8 +74,7 @@ public class ChargedParticleTransmissionSimulation extends MCNP_Deck{
      */
     public static void main(String ... args) throws Exception{
 
-        combineParsedFiles(new File("jobFiles/Proton_in_Titanium").listFiles(), 0.5);
-        //scanSourceEnergies();
+        scanSourceEnergies();
 
     }
 
@@ -83,9 +90,9 @@ public class ChargedParticleTransmissionSimulation extends MCNP_Deck{
         // *************
 
         MCNP_Particle sourceParticle = MCNP_Particle.proton();
-        MCNP_Material filterMaterial = Material_Library.titanium("");
+        MCNP_Material filterMaterial = Material_Library.tantalum("");
 
-        File particleRanges = new File("lib/protonRangesInTi");
+        File particleRanges = new File("lib/protonRangesInTa");
         double maxThickness  = 200.0*1e-4;
         double thicknessStep = 0.5 * 1e-4;
 
@@ -112,14 +119,14 @@ public class ChargedParticleTransmissionSimulation extends MCNP_Deck{
             simulation.maxFilterThickness = maxThickness;
             simulation.filterStepSize = thicknessStep;
             simulation.buildDeck();
-
+            System.out.println(simulation);
 
             double time = System.currentTimeMillis();
             System.out.printf("Running the %.4f MeV case ... ", sourceEnergy);
 
             String jobName = String.format("%s_in_%s", sourceParticle.getName(), filterMaterial.getName());
             MCNP_Job job = new MCNP_Job(jobName, simulation);
-            job.runMPIJob(numNodes, false, hosts);
+            //job.runMPIJob(numNodes, false, hosts);
 
             parseOutputFile(job.outputFile);
 
@@ -318,19 +325,14 @@ public class ChargedParticleTransmissionSimulation extends MCNP_Deck{
         // *********************************
 
 
-        // Build a list of the hosts
-        StringBuilder hostList = new StringBuilder();
-        String prefix = "";
-        for (String host : hosts){
-            hostList.append(prefix).append(host);
-            prefix = ", ";
-        }
-
-
-        // Computer parameters
+        // Computational Parameters
         this.addParameter("", "");
-        this.addParameter("Hosts used", hostList);
-        this.addParameter("Number of CPUs used", numNodes);
+        Integer totalNodes = 0;
+        for (int i = 0; i < hosts.length; i++){
+            this.addParameter(hosts[i] + " CPUs", numNodes[i]);
+            totalNodes += numNodes[i];
+        }
+        this.addParameter("Number of CPUs used", totalNodes);
         this.addParameter("Submitted by user", System.getProperty("user.name"));
 
 
@@ -353,15 +355,7 @@ public class ChargedParticleTransmissionSimulation extends MCNP_Deck{
 
         // Tally parameters
         this.addParameter("", "");
-        this.addParameter("Tally Energy Bin Width (keV)", energyBinWidth * 1e3);
-
-
-
-        // ******************
-        // Convert some units
-        // ******************
-
-        // Nothing needs to be done
+        this.addParameter("Number of Energy Bins", numEnergyBins);
 
 
 
@@ -426,7 +420,7 @@ public class ChargedParticleTransmissionSimulation extends MCNP_Deck{
         // ****************************
 
         // Make the energy bins for the tallies
-        double[] energyBins = MCNP_API_Utilities.linspace(0.0, sourceEnergy+energyBinWidth, energyBinWidth);
+        double[] energyBins = MCNP_API_Utilities.linspace(0.0, 1.1*sourceEnergy, numEnergyBins);
 
         // MCNP will only let us have 100 tallies, so we'll choose the surfaces about the expected range
         double minTallyThickness = expectedSourceRange - 45 * filterStepSize;

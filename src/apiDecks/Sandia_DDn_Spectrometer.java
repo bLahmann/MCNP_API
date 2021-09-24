@@ -33,17 +33,51 @@ public class Sandia_DDn_Spectrometer extends MCNP_Deck{
     private Double cr39HolderHeight = 6.350;                // Height of the CR-39 holder
     private Double cr39HolderEdgeRadius = 4.27;             // Radius of the CR-39 holder edge
     private Double cr39HolderThickness = 0.9525;            // Thickness of the CR-39 holder
-    private Double cr39HolderSeparationDistance = 10.0;     // Separation distance between CR-39 holders
+    private Double cr39HolderSeparationDistance = 25.0;     // Separation distance between CR-39 holders
     private Double cr39HolderCenterOffset = 0.3175;         // Offset of the center of the CR-39 holder
     private Double cr39HolderDiameter = 4.9276;             // Inner diameter of the CR-39 holder
 
-    private Double chFoilThickness = 20.0 * 1e-4;           // Thickness of the CH foil
+    private Double chFoilThickness = 10.0 * 1e-4;           // Thickness of the CH foil
 
     private Double detectorDiameter = 5.0;                  // Diameter of the detector
     private Double detectorThickness = 1500 * 1e-4;         // Thickness of the detector
 
     private Double railingWidth  = 6.350;           // Width of the railing
     private Double railingHeight = 0.9525;          // Height of the railing
+
+    private boolean linerModeled                = true;
+    private MCNP_Material linerMaterial         = Material_Library.beryllium("70c");
+    private Double linerDensity                 = 560.0;
+    private Double linerInnerDiameter           = 116.0 * 1e-4;
+    private Double linerOuterDiameter           = 139.2 * 1e-4;
+    private Double linerHeight                  = 5000.0 * 1e-4;
+
+
+    // Spacer
+    private boolean spacerModeled               = true;
+    private MCNP_Material spacerMaterial        = Material_Library.titanium("70c");
+    private Double spacerInnerDiameter          = 1.82 * 2.54;     // cm
+    private Double spacerOuterDiameter          = 5.22 * 2.54;     // cm
+    private Double spacerHeight                 = 1.33 * 2.54;     // cm
+
+
+    // Blast Shield
+    private boolean blastShieldModeled          = true;
+    private MCNP_Material blastShieldMaterial   = Material_Library.AlSl304_SS("70c");
+    private Double blastShieldInnerDiameter     = 20.75 * 2.54;     // cm
+    private Double blastShieldOuterDiameter     = 22.00 * 2.54;     // cm
+    private Double blastShieldHoleHeight        =  4.00 * 2.54;     // cm
+    private Double blashShieldHoleWidth         =  2.00 * 2.54;     // cm
+    private Double blastShieldHeight            =  8.00 * 2.54;     // cm
+
+
+    // MITL Deck
+    private boolean mitlDeckModeled             = true;
+    private MCNP_Material mitlDeckMaterial      = Material_Library.aluminum("70c");
+    private Double mitlDeckInnerDiameter        = 2* 15.063 * 2.54;       // cm
+    private Double mitlDeckOuterDiameter        = 2* 58.0   * 2.54;       // cm
+    private Double mitlDeckThickness            =    0.5    * 2.54;       // cm
+    private Double mitlDeckOffset               =    1.23   * 2.54;       // Distance between the bottom of the blast shield and top of the mitl deck (cm)
 
 
 
@@ -71,9 +105,20 @@ public class Sandia_DDn_Spectrometer extends MCNP_Deck{
 
     private File sourceFile = new File("./lib/DD_Tion_2.0_rhoR_1.3_Equator.source");
 
+    // Computation Parameters
+    private final static String[] hosts = {             // Computer hosts to use
+            "ben-local",
+            "chewie-local",
+            "luke-local",
+            "han-local"
+    };
+    private final static Integer[] numNodes = {         // Number of nodes to use (max 192)
+            9,
+            10,
+            10,
+            9
+    };
 
-    private final static String[] hosts = {"han", "luke", "ben", "chewie"};    // Computer hosts to use
-    private final static Integer  numNodes = 180;                              // Number of nodes to use (max 192)
     private Integer numSimulatedNeutrons = (int) 1e9;   // Number of particles to simulate
 
 
@@ -88,17 +133,13 @@ public class Sandia_DDn_Spectrometer extends MCNP_Deck{
         // Al case
         spectrometer = new Sandia_DDn_Spectrometer(
                 "Sandia DDn Spectrometer ( JJ49970-000-UNC )");
-        spectrometer.tubeMaterial = null;
         spectrometer.setSourceByTemperature(2.0);
         spectrometer.buildDeck();
         System.out.println(spectrometer);
 
 
-        System.out.print("Running Al case ... ");
         job = new MCNP_Job("DDn_Spectrometer_Material_Test", spectrometer);
-        job.plotGeometry();
-        //job.runMPIJob(numNodes, false, hosts);
-        System.out.println("Done!");
+        job.runMPIJob(hosts, numNodes, true);
 
     }
 
@@ -124,7 +165,7 @@ public class Sandia_DDn_Spectrometer extends MCNP_Deck{
                 spectrometer.setSourceByFile();
                 MCNP_Job job = new MCNP_Job("DDn_Spectrometer_Clean_Liner", spectrometer);
                 System.out.print("  -> Running liner case ... ");
-                job.runMPIJob(numNodes, false, hosts);
+                //job.runMPIJob(numNodes, false, hosts);
                 System.out.println("Done!");
 
 
@@ -132,7 +173,7 @@ public class Sandia_DDn_Spectrometer extends MCNP_Deck{
                 spectrometer.setSourceByTemperature(2.0);
                 job = new MCNP_Job("DDn_Spectrometer_Clean_NoLiner", spectrometer);
                 System.out.print("  -> Running no-liner case ... ");
-                job.runMPIJob(numNodes, false, hosts);
+                //job.runMPIJob(numNodes, false, hosts);
                 System.out.println("Done!");
 
             }
@@ -315,6 +356,68 @@ public class Sandia_DDn_Spectrometer extends MCNP_Deck{
         topCR39HolderFace.addParameter(cr39HolderHeight/2.0 + cr39HolderCenterOffset);
 
 
+        // PY Surfaces
+        MCNP_Surface linerTopSurface = new MCNP_Surface("Liner Top Surface", "py");
+        linerTopSurface.addParameter(linerHeight / 2.0);
+
+        MCNP_Surface linerBottomSurface = new MCNP_Surface("Liner Bottom Surface", "py");
+        linerBottomSurface.addParameter(-linerHeight / 2.0);
+
+        MCNP_Surface spacerTopSurface = new MCNP_Surface("Spacer Top Surface", "py");
+        spacerTopSurface.addParameter(spacerHeight / 2.0);
+
+        MCNP_Surface spacerBottomSurface = new MCNP_Surface("Spacer Bottom Surface", "py");
+        spacerBottomSurface.addParameter(-spacerHeight / 2.0);
+
+        MCNP_Surface blastShieldTopSurface = new MCNP_Surface("Blast Shield Top Surface", "py");
+        blastShieldTopSurface.addParameter(blastShieldHeight / 2.0);
+
+        MCNP_Surface blastShieldBottomSurface = new MCNP_Surface("Blast Shield Bottom Surface", "py");
+        blastShieldBottomSurface.addParameter(-blastShieldHeight / 2.0);
+
+        MCNP_Surface mitlDeckTopSurface = new MCNP_Surface("MITL Deck Top Surface", "py");
+        mitlDeckTopSurface.addParameter(mitlDeckThickness / 2.0 - mitlDeckOffset - blastShieldHeight / 2.0);
+
+        MCNP_Surface mitlDeckBottomSurface = new MCNP_Surface("MITL Deck Bottom Surface", "py");
+        mitlDeckBottomSurface.addParameter(-mitlDeckThickness / 2.0 - mitlDeckOffset - blastShieldHeight / 2.0);
+
+        MCNP_Surface blastShieldHoleTopSurface = new MCNP_Surface("Blast Shield Hole Top Surface", "py");
+        blastShieldHoleTopSurface.addParameter(blastShieldHoleHeight / 2.0);
+
+        MCNP_Surface blastShieldHoleBottomSurface = new MCNP_Surface("Blast Shield Hole Bottom Surface", "py");
+        blastShieldHoleBottomSurface.addParameter(- blastShieldHoleHeight / 2.0);
+
+        MCNP_Surface blastShieldHoleRightSurface = new MCNP_Surface("Blast Shield Hole Right Surface", "px");
+        blastShieldHoleRightSurface.addParameter(blashShieldHoleWidth / 2.0);
+
+        MCNP_Surface blastShieldHoleLeftSurface = new MCNP_Surface("Blast Shield Hole Left Surface", "px");
+        blastShieldHoleLeftSurface.addParameter(- blashShieldHoleWidth / 2.0);
+
+        // CY Surfaces
+        MCNP_Surface linerInnerSurface = new MCNP_Surface("Liner Inner Surface", "cy");
+        linerInnerSurface.addParameter(linerInnerDiameter / 2.0);
+
+        MCNP_Surface linerOuterSurface = new MCNP_Surface("Liner Outer Surface", "cy");
+        linerOuterSurface.addParameter(linerOuterDiameter / 2.0);
+
+        MCNP_Surface spacerInnerSurface = new MCNP_Surface("Spacer Inner Surface", "cy");
+        spacerInnerSurface.addParameter(spacerInnerDiameter / 2.0);
+
+        MCNP_Surface spacerOuterSurface = new MCNP_Surface("Spacer Outer Surface", "cy");
+        spacerOuterSurface.addParameter(spacerOuterDiameter / 2.0);
+
+        MCNP_Surface blastShieldInnerSurface = new MCNP_Surface("Blast Shield Inner Surface", "cy");
+        blastShieldInnerSurface.addParameter(blastShieldInnerDiameter / 2.0);
+
+        MCNP_Surface blastShieldOuterSurface = new MCNP_Surface("Blast Shield Outer Surface", "cy");
+        blastShieldOuterSurface.addParameter(blastShieldOuterDiameter / 2.0);
+
+        MCNP_Surface mitlDeckInnerSurface = new MCNP_Surface("MITL Deck Inner Surface", "cy");
+        mitlDeckInnerSurface.addParameter(mitlDeckInnerDiameter / 2.0);
+
+        MCNP_Surface mitlDeckOuterSurface = new MCNP_Surface("MITL Deck Outer Surface", "cy");
+        mitlDeckOuterSurface.addParameter(mitlDeckOuterDiameter / 2.0);
+
 
         /**
          * Cell cards
@@ -374,7 +477,7 @@ public class Sandia_DDn_Spectrometer extends MCNP_Deck{
         this.addCell(tube);
 
 
-        /*
+
         MCNP_Cell chFoil = new MCNP_Cell("CH Conversion Foil", conversionMaterial, 1);
         chFoil.setForcedCollisions(1.0);
         chFoil.addSurface(frontShieldMountEnd, MCNP_Volume.Orientation.POSITIVE);
@@ -385,15 +488,15 @@ public class Sandia_DDn_Spectrometer extends MCNP_Deck{
         chFoil.addSurface(topCR39HolderFace, MCNP_Volume.Orientation.NEGATIVE);
         chFoil.addSurface(cr39HolderEdgeSurface, MCNP_Volume.Orientation.NEGATIVE);
         this.addCell(chFoil);
-        */
 
+/*
         MCNP_Cell chFoil = new MCNP_Cell("CH Conversion Foil", conversionMaterial, 1);
         chFoil.setForcedCollisions(1.0);
         chFoil.addSurface(frontShieldMountEnd, MCNP_Volume.Orientation.POSITIVE);
         chFoil.addSurface(chFoilEnd, MCNP_Volume.Orientation.NEGATIVE);
         chFoil.addSurface(innerCR39HolderSurface, MCNP_Volume.Orientation.NEGATIVE);
         this.addCell(chFoil);
-
+*/
 
         MCNP_Cell firstCR39Holder = new MCNP_Cell("1st CR-39 Holder", tubeMaterial, 1);
         firstCR39Holder.addSurface(chFoilEnd, MCNP_Volume.Orientation.POSITIVE);
@@ -428,6 +531,45 @@ public class Sandia_DDn_Spectrometer extends MCNP_Deck{
         MCNP_Cell outsideWorld = new MCNP_Cell("Outside World", 0);
         outsideWorld.addSurface(outsideWorldBoundary, MCNP_Volume.Orientation.POSITIVE);
         this.addCell(outsideWorld);
+
+        if (linerModeled)       linerMaterial.setDensity(-linerDensity);
+        MCNP_Cell liner = new MCNP_Cell("Liner", null, 1);
+        liner.addSurface(linerOuterSurface, MCNP_Volume.Orientation.NEGATIVE);
+        liner.addSurface(linerInnerSurface, MCNP_Volume.Orientation.POSITIVE);
+        liner.addSurface(linerBottomSurface, MCNP_Volume.Orientation.POSITIVE);
+        liner.addSurface(linerTopSurface, MCNP_Volume.Orientation.NEGATIVE);
+        this.addCell(liner);
+
+        MCNP_Cell spacer = new MCNP_Cell("Spacer", null, 1);
+        spacer.addSurface(spacerOuterSurface, MCNP_Volume.Orientation.NEGATIVE);
+        spacer.addSurface(spacerInnerSurface, MCNP_Volume.Orientation.POSITIVE);
+        spacer.addSurface(spacerBottomSurface, MCNP_Volume.Orientation.POSITIVE);
+        spacer.addSurface(spacerTopSurface, MCNP_Volume.Orientation.NEGATIVE);
+        this.addCell(spacer);
+
+        MCNP_Cell blastShield = new MCNP_Cell("Blast Shield", null, 1);
+        MCNP_SurfaceCollection blastShieldSurfaces = new MCNP_SurfaceCollection(false);
+        blastShieldSurfaces.addSurface(blastShieldOuterSurface, MCNP_Volume.Orientation.NEGATIVE);
+        blastShieldSurfaces.addSurface(blastShieldInnerSurface, MCNP_Volume.Orientation.POSITIVE);
+        blastShieldSurfaces.addSurface(blastShieldBottomSurface, MCNP_Volume.Orientation.POSITIVE);
+        blastShieldSurfaces.addSurface(blastShieldTopSurface, MCNP_Volume.Orientation.NEGATIVE);
+        if (true) {
+            MCNP_SurfaceCollection blastShieldHoleSurfaces = new MCNP_SurfaceCollection(true);
+            blastShieldHoleSurfaces.addSurface(blastShieldHoleTopSurface, MCNP_Volume.Orientation.POSITIVE);
+            blastShieldHoleSurfaces.addSurface(blastShieldHoleBottomSurface, MCNP_Volume.Orientation.NEGATIVE);
+            blastShieldHoleSurfaces.addSurface(blastShieldHoleLeftSurface, MCNP_Volume.Orientation.NEGATIVE);
+            blastShieldHoleSurfaces.addSurface(blastShieldHoleRightSurface, MCNP_Volume.Orientation.POSITIVE);
+            blastShieldSurfaces.addSubCollection(blastShieldHoleSurfaces);
+        }
+        blastShield.setSurfaces(blastShieldSurfaces);
+        this.addCell(blastShield);
+
+        MCNP_Cell mitlDeck = new MCNP_Cell("MITL Deck", null, 1);
+        mitlDeck.addSurface(mitlDeckOuterSurface, MCNP_Volume.Orientation.NEGATIVE);
+        mitlDeck.addSurface(mitlDeckInnerSurface, MCNP_Volume.Orientation.POSITIVE);
+        mitlDeck.addSurface(mitlDeckBottomSurface, MCNP_Volume.Orientation.POSITIVE);
+        mitlDeck.addSurface(mitlDeckTopSurface, MCNP_Volume.Orientation.NEGATIVE);
+        this.addCell(mitlDeck);
 
 
         /**
@@ -490,10 +632,10 @@ public class Sandia_DDn_Spectrometer extends MCNP_Deck{
         energyDist.setProbabilities(energyDistProbs);
 
 
-        MCNP_Distribution dirDistribution = getDirectionalDistribution();
+        //MCNP_Distribution dirDistribution = getDirectionalDistribution();
 
         neutronSource.setEnergyDistribution(energyDist);
-        neutronSource.setDirectionalDistribution(dirDistribution);
+        //neutronSource.setDirectionalDistribution(dirDistribution);
 
         this.setSource(neutronSource, numSimulatedNeutrons);
     }
